@@ -63,6 +63,8 @@ TYPES = [
     "protocol-flow",
     "architecture-pipeline",
     "circuit-cipher",
+    "zk-circuit",
+    "interactive-protocol",
     "lattice-geometric",
     "heatmap-matrix",
     "tree-graph",
@@ -75,7 +77,8 @@ KEYWORDS: dict[str, list[tuple[str, float]]] = {
                  (r"histogram", 2), (r"throughput", 1)],
     "plot-line": [(r"\bplot", 1.5), (r"\bcurve", 2), (r"as a function of", 2), (r"\bvs\.?\b|versus", 1.5),
                   (r"distribution", 1.5), (r"error", 1), (r"precision", 1), (r"approximation", 1.5),
-                  (r"probabilit", 1), (r"trade-?off", 1.5)],
+                  (r"probabilit", 1), (r"trade-?off", 1.5), (r"pareto", 2),
+                  (r"proof size", 2.5), (r"(prover|proving|verifier|verification) time", 2.5)],
     "plot-scaling": [(r"scal", 2.5), (r"log[- ]?scale|log-log|logarithmic", 3), (r"asymptot", 2),
                      (r"grow", 1.5), (r"number of (slots|threads|parties|cores)", 2)],
     "table-like": [(r"\btable", 2), (r"parameter sets?", 1.5), (r"summary of", 1)],
@@ -87,20 +90,32 @@ KEYWORDS: dict[str, list[tuple[str, float]]] = {
                               (r"illustration", 1.5), (r"diagram", 1), (r"high-level", 2),
                               (r"structure", 1.5), (r"data-?flow", 3), (r"\bblock", 1.5), (r"computation on", 1.5),
                               (r"lowering|compiler|\bir\b", 2)],
-    "circuit-cipher": [(r"round", 2.5), (r"s-?box", 3), (r"cipher", 2.5), (r"circuit", 3), (r"\bgates?\b", 2),
+    # "circuit"/"gates" live under zk-circuit; classify() hands them back to
+    # circuit-cipher when the caption has cipher context and no ZK context
+    "circuit-cipher": [(r"round", 2.5), (r"s-?box", 3), (r"cipher", 2.5),
                        (r"\bxor\b", 2), (r"permutation", 1.5), (r"key schedule", 3), (r"feistel|spn", 3),
                        (r"trail|characteristic", 2)],
+    "zk-circuit": [(r"circuit", 3), (r"\bgates?\b", 2), (r"constraint", 3), (r"\br1cs\b", 3.5),
+                   (r"plonkish", 3.5), (r"\bair\b", 3), (r"witness", 2.5), (r"arithmeti[sz]ation", 3)],
+    # "prover time"/"verifier time" are metrics (plot-*), not protocol boxes
+    "interactive-protocol": [(r"\bprover\b(?!'?s? (time|cost|runtime))", 3),
+                             (r"\bverifier\b(?!'?s? (time|cost|runtime))", 3), (r"\bpiop", 3.5),
+                             (r"sum-?check", 3), (r"commitment", 2), (r"opening", 2), (r"folding", 2.5),
+                             (r"\bargument\b", 1.5)],
     "lattice-geometric": [(r"lattice", 2.5), (r"basis", 2), (r"geometr", 2.5), (r"\bball\b|sphere", 2),
                           (r"fundamental domain|parallelepiped|voronoi", 3), (r"embedding", 1), (r"region", 1),
                           (r"\bplane\b", 1.5)],
     "heatmap-matrix": [(r"heat ?map", 3.5), (r"\bmatrix|matrices", 2), (r"\bddt\b|\blat\b|difference distribution", 3),
                        (r"correlation", 1.5), (r"diagonal", 1.5), (r"grid", 1.5), (r"sparsity", 2)],
-    "tree-graph": [(r"\btree", 3), (r"\bgraph", 1), (r"\bdag\b", 3), (r"\bnodes?\b", 2), (r"recursion|recursive", 1.5),
+    "tree-graph": [(r"\btree", 3), (r"merkle", 3), (r"\bgraph", 1), (r"\bdag\b", 3), (r"\bnodes?\b", 2), (r"recursion|recursive", 1.5),
                    (r"butterfly|ntt|fft", 1.5), (r"depth", 1)],
     "pseudocode-box": [(r"algorithm", 2.5), (r"pseudo-?code", 3), (r"\bconstruction", 2.5), (r"scheme", 1.5),
                        (r"definition", 1.5), (r"\bkeygen|encrypt|decrypt", 2), (r"procedure", 1.5)],
 }
 KEYWORDS_C = {t: [(re.compile(p, re.I), w) for p, w in kw] for t, kw in KEYWORDS.items()}
+CIPHER_CONTEXT_RE = re.compile(r"s-?box|cipher|key schedule|feistel|\bspn\b|\baes\b|\bxor\b|round function", re.I)
+ZK_CONTEXT_RE = re.compile(r"constraint|\br1cs\b|plonk|\bair\b|witness|snark|stark|\bzk|zero-knowledge|"
+                           r"\bproof|prover|verifier|piop|sum-?check|arithmeti[sz]ation|lookup", re.I)
 
 
 @dataclass
@@ -430,6 +445,18 @@ def classify(caption: str, st: dict) -> tuple[str, dict]:
         for rx, w in pats:
             if rx.search(cap):
                 s[t] += 1.3 * w
+    # disambiguate shared vocabulary between symmetric-cipher and ZK captions
+    zk_ctx = ZK_CONTEXT_RE.search(cap)
+    if not zk_ctx and CIPHER_CONTEXT_RE.search(cap):
+        for rx, w in KEYWORDS_C["zk-circuit"][:2]:  # circuit, gates
+            if rx.search(cap):
+                s["zk-circuit"] -= 1.3 * w
+                s["circuit-cipher"] += 1.3 * w
+    if re.search(r"argument|copy constraint", cap) and re.search(r"permutation", cap):
+        s["circuit-cipher"] -= 1.3 * 1.5  # PLONK permutation argument, not a cipher permutation
+    if "round" in cap and (zk_ctx or s["interactive-protocol"] > 0):
+        s["circuit-cipher"] -= 1.3 * 2.5  # protocol rounds, not cipher rounds
+        s["interactive-protocol"] += 1.3 * 1.5
     nl, nc, nr = st["n_line"], st["n_curve"], st["n_rect"]
     tot = nl + nc + nr + st["n_quad"]
     td = st["text_density"]  # words per square inch; running text is ~15-25

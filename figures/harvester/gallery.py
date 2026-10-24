@@ -21,7 +21,8 @@ from pathlib import Path
 
 TYPE_ORDER = [
     "plot-bar", "plot-line", "plot-scaling", "heatmap-matrix", "table-like",
-    "protocol-flow", "architecture-pipeline", "circuit-cipher", "lattice-geometric",
+    "protocol-flow", "architecture-pipeline", "circuit-cipher", "zk-circuit",
+    "interactive-protocol", "lattice-geometric",
     "tree-graph", "pseudocode-box", "other",
 ]
 

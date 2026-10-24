@@ -102,7 +102,7 @@ For each PDF, the harvester does the following:
    raster dpi.
 5. It classifies the figure into one of: plot-bar, plot-line,
    plot-scaling, table-like, protocol-flow, architecture-pipeline,
-   circuit-cipher, lattice-geometric, heatmap-matrix, tree-graph,
+   circuit-cipher, zk-circuit, interactive-protocol, lattice-geometric, heatmap-matrix, tree-graph,
    pseudocode-box or other. Classification combines caption keywords with
    these statistics.
 6. It scores quality from 0 to 100, favouring vector content, 300+ dpi

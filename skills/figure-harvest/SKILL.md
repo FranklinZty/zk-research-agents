@@ -11,8 +11,11 @@ words. The harvested images are never committed.
 ## When to use
 * At the start of P7 (Writing + Figures), on the related-work PDFs gathered in P1.
 * When the target venue or sub-field has conventions you do not know yet.
-  Examples: symmetric papers use trail tables and round diagrams, FHE
-  papers use bit layouts and pipelines, MPC papers use functionality boxes.
+  Examples: protocol papers use prover/verifier protocol boxes, systems
+  papers use a prover-time vs proof-size Pareto plot and a stacked
+  prover-time breakdown (witness / commit / sum-check or quotient / open),
+  and most SNARK papers carry a comparison table (setup, assumptions,
+  proof size, P/V time).
 * When extending `figures/PATTERNS.md` with a new pattern.
 
 ## Procedure
@@ -67,6 +70,15 @@ words. The harvested images are never committed.
   * whitespace fraction and words per square inch
   * effective raster dpi
 * **Type:** the classifier combines caption-keyword scores with statistic rules.
+  ZK captions have their own types: `zk-circuit` (circuit, gates,
+  constraint, R1CS, Plonkish, AIR, witness) and `interactive-protocol`
+  (prover, verifier, PIOP, sum-check, commitment, opening, folding).
+  Shared words are disambiguated by context: "circuit"/"gates" go to
+  `circuit-cipher` only next to cipher words (S-box, round function, key
+  schedule) and no ZK words; "permutation" next to "argument" or "copy
+  constraint" does not count as a cipher; "round" next to prover/verifier
+  words counts as a protocol round. "Merkle" goes to `tree-graph`;
+  "proof size" and "prover time" go to the plot types.
 * **Quality:** the score starts at 50.
   * Vector content: +20.
   * Rasters: from +15 down to −15, depending on dpi.
