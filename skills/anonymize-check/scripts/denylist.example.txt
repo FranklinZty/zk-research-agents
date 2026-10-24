@@ -8,5 +8,14 @@ aexample
 # Affiliations, labs, grant numbers, city if unusual
 Example University
 re:example\s+lab(oratory)?
+# Company / employer names and internal project or codenames (ZK teams often ship
+# under a product name that identifies them as surely as an author name)
+Example Labs Inc
+re:project[-_ ]?toycodename
+# On-chain identities: deployer / multisig / verifier-contract addresses, ENS names
+# (the scanner already flags every address and *.eth name; listing yours also catches
+# them inside URLs, file names and raw PDF bytes)
+re:0x0{38}a1
+aexample.eth
 # Machine names / usernames that appear in paths or logs
 re:/home/aexample

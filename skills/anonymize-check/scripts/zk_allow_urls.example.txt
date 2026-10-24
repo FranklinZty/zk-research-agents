@@ -1,0 +1,27 @@
+# Allow-URL template for anon_check.py --allow-url-file (ZK projects).
+# TEMPLATE: review before use. Copy to your project, delete every entry you are
+# affiliated with (your employer's org, a project you maintain or contribute to
+# under your real name), and add the third-party orgs your paper actually cites.
+# An allowed URL is never reported, not even when it contains a deny-list term.
+#
+# Format: one host or URL prefix per line ('#' starts a comment); a prefix only
+# matches at a path boundary. Lines starting with 're:' are regular expressions.
+
+# Libraries and proof systems
+github.com/arkworks-rs
+github.com/Plonky3
+github.com/privacy-scaling-explorations
+github.com/Consensys/gnark
+github.com/iden3
+github.com/succinctlabs
+github.com/risc0
+github.com/a16z
+github.com/starkware-libs
+github.com/zcash
+github.com/zkcrypto
+github.com/microsoft/Nova
+github.com/noir-lang
+github.com/lambdaclass
+
+# Documentation hosts for third-party crates
+docs.rs

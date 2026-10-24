@@ -12,17 +12,27 @@ identity leaks that commonly cause desk rejection in double-blind review:
   * PDF metadata (Author, Title, Subject, Keywords, Creator, Producer) and
     embedded source paths (PTEX.FileName) and raw-byte hits of deny-list terms
   * a .git directory or VCS remote URLs inside an artifact
+  * on-chain identifiers: Ethereum addresses (0x + 40 hex) and ENS names (*.eth)
+  * package metadata: `authors`/`author`/`repository` in Cargo.toml / package.json
+  * links to shared notes (hackmd.io) and package pages (crates.io, npmjs.com),
+    whose owner/maintainer pages often name the authors
 
 Usage
 -----
   python3 anon_check.py PATH [PATH ...] [--deny "Alice Smith,asmith,Example Univ"]
                          [--deny-file denylist.txt] [--allow-url REGEX ...]
+                         [--allow-url-file zk_allow_urls.txt]
                          [--json] [--min-severity LOW|MEDIUM|HIGH]
   python3 anon_check.py --selftest
 
 Deny-list file: one term per line, '#' starts a comment. A line starting with
 're:' is a Python regular expression, otherwise matching is case-insensitive
 substring on word boundaries.
+
+Allow-URL file: one host or URL prefix per line ('github.com/arkworks-rs',
+'https://docs.rs'), '#' starts a comment. A line starting with 're:' is a regex.
+A prefix only matches at a path boundary, so 'github.com/risc0' does not allow
+'github.com/risc0-fork'. See zk_allow_urls.example.txt.
 
 Exit status: 0 = no HIGH findings, 1 = at least one HIGH finding, 2 = usage error.
 
@@ -65,6 +75,19 @@ PERSONAL_HOST_RE = re.compile(
     r"orcid\.org|linkedin\.com|twitter\.com|x\.com|dblp\.org/pid)[^\s\"'<>}{)\]]*",
     re.I,
 )
+NOTES_HOST_RE = re.compile(r"https?://(?:www\.)?hackmd\.io/", re.I)
+PACKAGE_PAGE_RE = re.compile(
+    r"https?://(?:www\.)?(?:crates\.io/crates/|npmjs\.com/package/|npmjs\.org/package/)", re.I)
+ETH_ADDR_RE = re.compile(r"(?<![0-9A-Za-z])0x[0-9a-fA-F]{40}(?![0-9A-Za-z])")
+ZERO_ADDR = "0x" + "0" * 40
+# not inside e-mails/URLs/paths, and not a DNS label such as www.eth.ch
+ENS_RE = re.compile(r"(?<![\w.@/-])[a-z0-9-]+(?:\.[a-z0-9-]+)*\.eth\b(?!\.[a-z0-9])", re.I)
+# package manifests: identity-bearing fields (an empty value such as `authors = []` is fine)
+MANIFEST_FIELD_RE = {
+    "Cargo.toml": re.compile(r"^\s*(authors|repository)\s*=\s*(.*)$"),
+    "package.json": re.compile(r"\"(author|authors|repository)\"\s*:\s*(.*)$"),
+}
+EMPTY_VALUES = {"", "[]", "\"\"", "''", "{}", "null"}
 DEFAULT_ALLOW_URL = [
     r"anonymous\.4open\.science",
     r"doi\.org",
@@ -156,6 +179,39 @@ def _url_findings(line: str, allow: list[re.Pattern], deny: DenyList, where: str
         elif PERSONAL_HOST_RE.match(url):
             out.append(Finding(_scale("MEDIUM", sev_scale), "personal-host-url", where, ln,
                                url + "  (third-party repos are fine; own repos must be anonymous)"))
+        elif NOTES_HOST_RE.match(url):
+            out.append(Finding(_scale("MEDIUM", sev_scale), "notes-host-url", where, ln,
+                               url + "  (shared notes show the owner's profile and edit history)"))
+        elif PACKAGE_PAGE_RE.match(url):
+            out.append(Finding(_scale("MEDIUM", sev_scale), "package-page-url", where, ln,
+                               url + "  (package pages list owners/maintainers; fine for third-party packages)"))
+    return out
+
+
+def _manifest_findings(line: str, fname: str, where: str, ln: int) -> list[Finding]:
+    pat = MANIFEST_FIELD_RE.get(fname)
+    if not pat:
+        return []
+    m = pat.search(line)
+    if not m or m.group(2).strip().rstrip(",").strip() in EMPTY_VALUES:
+        return []
+    return [Finding("HIGH", f"manifest-{m.group(1).lower().rstrip('s')}", where, ln, line.strip()[:160])]
+
+
+def load_allow_url_file(path: str) -> list[str]:
+    """Allow-URL file -> list of regexes (hosts / URL prefixes, or 're:' regexes)."""
+    out: list[str] = []
+    for raw in Path(path).read_text(encoding="utf-8", errors="replace").splitlines():
+        t = raw.split("#", 1)[0].strip()
+        if not t:
+            continue
+        if t.startswith("re:"):
+            out.append(t[3:])
+            continue
+        t = re.sub(r"^https?://", "", t, flags=re.I).rstrip("/")
+        if t.lower().startswith("www."):
+            t = t[4:]
+        out.append(r"^https?://(?:www\.)?" + re.escape(t) + r"(?:[/?#:]|$)")
     return out
 
 
@@ -168,6 +224,7 @@ def scan_text(text: str, where: str, ext: str, deny: DenyList, allow: list[re.Pa
     out: list[Finding] = []
     is_tex = ext in TEX_EXT
     is_bib = ext in BIB_EXT
+    fname = Path(where.split("!")[-1]).name
     for i, line in enumerate(text.splitlines(), 1):
         comment = _is_comment_line(line, ext)
         # comments ship with source uploads (e.g. arXiv/Overleaf sharing): one level lower
@@ -186,6 +243,13 @@ def scan_text(text: str, where: str, ext: str, deny: DenyList, allow: list[re.Pa
             out.append(Finding(_scale("HIGH", delta), "email", where, i, m.group(0)))
         for m in LOCAL_PATH_RE.finditer(line):
             out.append(Finding(_scale("HIGH", delta), "local-path", where, i, m.group(0)))
+        for m in ETH_ADDR_RE.finditer(line):
+            if m.group(0) != ZERO_ADDR:
+                out.append(Finding(_scale("HIGH", delta), "eth-address", where, i,
+                                   m.group(0) + "  (deployer/contract addresses link to on-chain history)"))
+        for m in ENS_RE.finditer(line):
+            out.append(Finding(_scale("HIGH", delta), "ens-name", where, i, m.group(0)))
+        out += _manifest_findings(line, fname, where, i)
         if not is_bib:
             out += _url_findings(line, allow, deny, where, i, delta)
         if is_tex and not comment:
@@ -388,6 +452,9 @@ Code: \url{https://github.com/aexample/lutpack} and \url{https://anonymous.4open
 Third party: \url{https://github.com/thirdparty/lib}.
 % compiled from /home/aexample/papers/lut
 \section*{Acknowledgements} We thank Bob. This work was supported by grant no. 42.
+Our verifier is deployed at 0x00000000000000000000000000000000000000a1 by toyprover.eth.
+Design notes: \url{https://hackmd.io/ToyFoldingNotes}; packages
+\url{https://crates.io/crates/toy-folding} and \url{https://www.npmjs.com/package/toy-circuits}.
 \end{document}
 """
     clean = r"""\documentclass[runningheads]{llncs}
@@ -397,16 +464,24 @@ Third party: \url{https://github.com/thirdparty/lib}.
 \begin{document}
 As shown by Example et al.~\cite{ex24}, packing helps.
 Code: \url{https://anonymous.4open.science/r/lutpack-1234}.
+Transcript digest 0x""" + "ab" * 32 + r""" on the eth0 interface; see www.eth.ch and data.ethereum.
+We build on \url{https://github.com/arkworks-rs/algebra} and \url{https://github.com/Plonky3/Plonky3}.
 \end{document}
 """
     bib = "@misc{ex24, author={Alice Example and Carol Other}, title={{PBS} tricks}, year={2024}}\n"
     code = "# author: aexample\nDATA = '/home/aexample/data'\n"
+    cargo = '[package]\nname = "toy-folding"\nauthors = ["Toy Person <toy@example.com>"]\nrepository = "https://example.com/toy"\n'
+    pkg = '{\n  "name": "toy-circuits",\n  "author": "Toy Person",\n  "version": "0.1.0"\n}\n'
+    cargo_clean = '[package]\nname = "toy-folding"\nauthors = []\n'
+    template = Path(__file__).with_name("zk_allow_urls.example.txt")
     with tempfile.TemporaryDirectory() as td:
         d = Path(td) / "leaky"
         d.mkdir()
         (d / "main.tex").write_text(tex)
         (d / "refs.bib").write_text(bib)
         (d / "run.py").write_text(code)
+        (d / "Cargo.toml").write_text(cargo)
+        (d / "package.json").write_text(pkg)
         zpath = Path(td) / "artifact.zip"
         with zipfile.ZipFile(zpath, "w") as z:
             z.writestr("artifact/.git/config", "[remote]\nurl = https://github.com/aexample/lutpack\n")
@@ -415,18 +490,32 @@ Code: \url{https://anonymous.4open.science/r/lutpack-1234}.
         c.mkdir()
         (c / "main.tex").write_text(clean)
         (c / "refs.bib").write_text(bib)
+        (c / "Cargo.toml").write_text(cargo_clean)
 
         deny = DenyList(["Alice Example", "aexample", "Example University"])
         f_leaky = run([str(d), str(zpath)], deny, [])
         kinds = {f.kind for f in f_leaky}
         expected = {"deny-term", "email", "tex-\\author", "tex-\\institute", "first-person-self-cite",
                     "url-deny-term", "local-path", "acknowledgements", "funding-statement",
-                    "vcs-dir-in-archive", "deny-term-in-bib", "personal-host-url"}
+                    "vcs-dir-in-archive", "deny-term-in-bib", "personal-host-url",
+                    "eth-address", "ens-name", "manifest-author", "manifest-repository",
+                    "notes-host-url", "package-page-url"}
         missing = expected - kinds
         f_clean = run([str(c)], deny, [])
         high_clean = [f for f in f_clean if f.severity == "HIGH"]
         anon_flagged = any("anonymous.4open.science" in f.text and "url" in f.kind
                            for f in f_leaky + f_clean)
+        # ZK allow-list template: third-party library URLs stop producing MEDIUM noise,
+        # look-alike orgs are still flagged
+        third = [f for f in f_clean if f.kind == "personal-host-url"]
+        (c / "lookalike.md").write_text("https://github.com/arkworks-rs-fork/algebra\n")
+        allow_ok = len(third) == 2
+        if template.is_file():
+            f_allow = run([str(c)], deny, load_allow_url_file(str(template)))
+            allow_ok = allow_ok and [f.text.split()[0] for f in f_allow if f.kind == "personal-host-url"] \
+                == ["https://github.com/arkworks-rs-fork/algebra"]
+        else:
+            print("selftest: zk_allow_urls.example.txt not found; skipping allow-file part")
 
         pdf_ok = True
         if shutil.which("pdflatex"):
@@ -443,9 +532,10 @@ Code: \url{https://anonymous.4open.science/r/lutpack-1234}.
                 pdf_ok = "pdf-meta-author" in pk and "pdf-raw-bytes" in pk
             else:
                 print("selftest: pdflatex present but compile failed; skipping PDF part")
-    ok = not missing and not high_clean and not anon_flagged and pdf_ok
+    ok = not missing and not high_clean and not anon_flagged and pdf_ok and allow_ok
     print(f"selftest: {len(f_leaky)} findings on leaky sample; missing kinds: {sorted(missing) or 'none'}")
-    print(f"selftest: HIGH findings on clean sample: {len(high_clean)}; anonymous mirror flagged: {anon_flagged}; pdf ok: {pdf_ok}")
+    print(f"selftest: HIGH findings on clean sample: {len(high_clean)}; anonymous mirror flagged: {anon_flagged}; "
+          f"allow-file ok: {allow_ok}; pdf ok: {pdf_ok}")
     for f in high_clean:
         print("   ", f.fmt())
     print("selftest:", "PASS" if ok else "FAIL")
@@ -458,6 +548,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--deny", help="comma-separated deny terms (names, accounts, affiliations)")
     ap.add_argument("--deny-file", action="append", help="deny-list file (one term per line; 're:' for regex)")
     ap.add_argument("--allow-url", action="append", default=[], help="regex of URLs that are fine (third-party repos)")
+    ap.add_argument("--allow-url-file", action="append", default=[],
+                    help="file of allowed hosts / URL prefixes, one per line (see zk_allow_urls.example.txt)")
     ap.add_argument("--min-severity", default="LOW", choices=list(SEVERITIES))
     ap.add_argument("--json", action="store_true", help="machine-readable output")
     ap.add_argument("--selftest", action="store_true", help="run the built-in synthetic test")
@@ -471,7 +563,10 @@ def main(argv: list[str] | None = None) -> int:
     if not deny:
         print("warning: empty deny-list; only generic patterns are checked (pass --deny or --deny-file)",
               file=sys.stderr)
-    findings = run(a.paths, deny, a.allow_url, a.min_severity)
+    allow_urls = list(a.allow_url)
+    for f in a.allow_url_file:
+        allow_urls += load_allow_url_file(f)
+    findings = run(a.paths, deny, allow_urls, a.min_severity)
     if a.json:
         print(json.dumps([asdict(f) for f in findings], indent=1))
     else:
