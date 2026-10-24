@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""verify_bib.py -- check every BibTeX entry against IACR ePrint / Crossref / DBLP.
+"""verify_bib.py -- check every BibTeX entry against IACR ePrint / Crossref / DBLP,
+and @misc URL sources (blogs, HackMD, project docs, audit reports) against the live
+URL + the Wayback Machine.
 
 Why: fabricated or garbled references (invented co-authors, placeholder
 "Chen and others", wrong venue, a key pointing at a different paper) are a
@@ -14,6 +16,7 @@ Usage
     python3 verify_bib.py refs.bib --json report.json    # + machine-readable report
     python3 verify_bib.py refs.bib --offline             # static lint only
     python3 verify_bib.py refs.bib --only key1,key2      # re-check a few entries
+    python3 verify_bib.py refs.bib --url-timeout 5       # per-request timeout for URL sources
     python3 verify_bib.py --selftest
 
 Resolution order per entry
@@ -21,19 +24,26 @@ Resolution order per entry
 1. ePrint id (from `eprint=`, `url=`, `howpublished=`, `note=`, `journal=` text
    such as "Cryptology ePrint Archive, Paper 2018/421")  ->  ePrint OAI-PMH record.
 2. `doi=`  ->  Crossref /works/<doi>, falling back to DataCite (Zenodo, LIPIcs, arXiv DOIs).
-3. otherwise title search: DBLP (if reachable) then Crossref bibliographic query.
+3. `@misc`/`@online` with a URL and neither ePrint id nor DOI (gray literature)  ->
+   URL check: (a) the URL answers (HEAD, GET fallback, with timeout); (b) a Wayback
+   snapshot exists (an explicit web.archive.org link in `archiveurl=`/`note=`/
+   `howpublished=`, else the archive.org availability API); (c) an access date is
+   recorded (`urldate = {YYYY-MM-DD}` or "Accessed YYYY-MM-DD" in `note=`).
+4. otherwise title search: DBLP (if reachable) then Crossref bibliographic query.
 
 Each entry gets a status:
   VERIFIED     title similarity >= 0.90 and >= 1 author surname overlap (and year +-1 if given)
   MISMATCH     a record was found for the id/DOI but title or authors disagree
   WEAK         best title-search hit is similar but not conclusive (0.75..0.90) -> check by hand
   NOT_FOUND    nothing plausible found -> treat as fabricated until proven otherwise
+  NEEDS_VERIFICATION  URL source failing (a), (b) or (c) above -> not proof of fabrication,
+               but it cannot be cited until fixed or checked by hand
   UNCHECKED    offline / service error
 plus static LINT flags (placeholder authors, "and others" only, missing year/title,
 `% UNVERIFIED` marker in the .bib, duplicate titles, ...).
 
 Exit status: 0 if every entry is VERIFIED (lint warnings allowed), 1 if any entry
-is MISMATCH/NOT_FOUND/WEAK/UNCHECKED, 3 on usage errors.  Use it as a gate.
+is MISMATCH/NOT_FOUND/WEAK/NEEDS_VERIFICATION/UNCHECKED, 3 on usage errors.  Use it as a gate.
 """
 from __future__ import annotations
 
@@ -55,6 +65,10 @@ EPRINT_OAI = ("https://eprint.iacr.org/oai?verb=GetRecord&identifier=oai:eprint.
 CROSSREF = "https://api.crossref.org/works"
 DATACITE = "https://api.datacite.org/dois"
 DBLP = "https://dblp.org/search/publ/api"
+WAYBACK_API = "https://archive.org/wayback/available?url={url}"
+URL_TYPES = ("misc", "online", "electronic", "www")
+ARCHIVE_RE = re.compile(r"https?://(?:web\.)?archive\.org/web/\S+?(?=[\s}]|$)", re.I)
+ACCESSED_RE = re.compile(r"\baccessed(?:\s+on)?:?\s*(\d{4}-\d{2}-\d{2})\b", re.I)
 EPRINT_ID = re.compile(r"(?:eprint\.iacr\.org/|ePrint Archive,?\s*(?:Paper|Report)?\s*|^)"
                        r"((?:19|20)\d{2})/(\d{1,5})\b", re.I)
 
@@ -196,6 +210,30 @@ def http_get(url: str, timeout: float = 25.0) -> str:
         return r.read().decode("utf-8", errors="replace")
 
 
+def url_reachable(url: str, timeout: float = 10.0) -> tuple[bool, str]:
+    """HEAD, then GET for servers that refuse HEAD.  Never raises."""
+    last = ""
+    for method in ("HEAD", "GET"):
+        req = urllib.request.Request(url, method=method, headers={"User-Agent": UA})
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                return True, f"{method} {r.status}"
+        except urllib.error.HTTPError as e:
+            last = f"{method} HTTP {e.code}"
+            if e.code not in (403, 405, 501):
+                return False, last
+        except (urllib.error.URLError, TimeoutError, OSError, ValueError) as e:
+            return False, f"{method} {e}"
+    return False, last
+
+
+def wayback_snapshot(url: str, timeout: float = 10.0) -> str | None:
+    """Closest Wayback snapshot URL, or None.  Raises on service errors."""
+    data = json.loads(http_get(WAYBACK_API.format(url=urllib.parse.quote(url, safe="")), timeout=timeout))
+    snap = (data.get("archived_snapshots") or {}).get("closest") or {}
+    return snap.get("url") if snap.get("available") else None
+
+
 def fetch_eprint(eid: str) -> dict | None:
     xml = http_get(EPRINT_OAI.format(id=eid))
     if "<dc:title>" not in xml:
@@ -276,6 +314,70 @@ def search_dblp(title: str) -> list[dict]:
 
 # ---------------------------------------------------------------- checking ---
 
+def entry_url(f: dict) -> str | None:
+    if f.get("url"):
+        return re.sub(r"^\\url\{(.*)\}$", r"\1", f["url"].strip())
+    for k in ("howpublished", "note"):
+        m = re.search(r"\\url\{([^}]+)\}", f.get(k, ""))
+        if m and not ARCHIVE_RE.match(m.group(1)):
+            return m.group(1)
+    return None
+
+
+def access_date(f: dict) -> str | None:
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}", f.get("urldate", "").strip()):
+        return f["urldate"].strip()
+    for k in ("note", "howpublished", "addendum"):
+        m = ACCESSED_RE.search(f.get(k, ""))
+        if m:
+            return m.group(1)
+    return None
+
+
+def explicit_archive(f: dict) -> str | None:
+    for k in ("archiveurl", "archive", "note", "howpublished", "addendum"):
+        m = ARCHIVE_RE.search(f.get(k, ""))
+        if m:
+            return m.group(0)
+    return None
+
+
+def is_url_source(e: dict) -> bool:
+    """Gray literature: @misc/@online with a URL and no ePrint id / DOI to resolve."""
+    f = e["fields"]
+    return e["type"] in URL_TYPES and bool(entry_url(f)) and not find_eprint_id(f) and not f.get("doi")
+
+
+def check_url_source(e: dict, state: dict) -> tuple[str, str]:
+    """Return (status, detail).  Network calls go through state['probe'] / state['wayback']
+    so the selftest can inject fakes; every real call has a timeout."""
+    f = e["fields"]
+    url, tmo = entry_url(f), state.get("url_timeout", 10.0)
+    probe = state.get("probe", url_reachable)
+    wayback = state.get("wayback", wayback_snapshot)
+    problems, notes = [], []
+    ok, how = probe(url, tmo)
+    (notes if ok else problems).append(f"URL {'reachable' if ok else 'unreachable'} ({how})")
+    snap = explicit_archive(f)
+    if not snap:
+        try:
+            snap = wayback(url, tmo)
+        except (urllib.error.URLError, TimeoutError, OSError, ValueError) as exc:
+            problems.append(f"Wayback lookup failed: {exc}")
+            snap = ""
+        if snap is None:
+            problems.append("no Wayback snapshot (archive it and add archiveurl=)")
+    if snap:
+        notes.append(f"snapshot {snap[:80]}")
+    acc = access_date(f)
+    if acc:
+        notes.append(f"accessed {acc}")
+    else:
+        problems.append("no access date (add urldate = {YYYY-MM-DD})")
+    detail = f"{url[:80]}: " + "; ".join(problems + notes)
+    return ("NEEDS_VERIFICATION" if problems else "VERIFIED"), detail
+
+
 def find_eprint_id(f: dict) -> str | None:
     for k in ("eprint", "url", "howpublished", "note", "journal", "booktitle", "publisher"):
         v = f.get(k, "")
@@ -302,6 +404,8 @@ def lint(e: dict) -> list[str]:
         flags.append("TODO/TBD text in entry")
     if e["unverified_marker"]:
         flags.append("marked % UNVERIFIED in source")
+    if is_url_source(e) and not access_date(f):
+        flags.append("URL source without access date (urldate)")
     return flags
 
 
@@ -342,6 +446,11 @@ def check_entry(e: dict, offline: bool, state: dict) -> dict:
            "lint": lint(e), "status": "UNCHECKED", "score": 0.0, "detail": ""}
     if offline:
         res["detail"] = "offline mode"
+        return res
+    if is_url_source(e):
+        res["status"], res["detail"] = check_url_source(e, state)
+        res["score"] = 1.0 if res["status"] == "VERIFIED" else 0.0
+        time.sleep(state.get("delay", 1.0))
         return res
     try:
         eid = find_eprint_id(f)
@@ -386,7 +495,7 @@ def duplicate_titles(entries: list[dict]) -> dict[str, list[str]]:
 
 
 def render(results: list[dict], dups: dict) -> str:
-    order = {"MISMATCH": 0, "NOT_FOUND": 1, "WEAK": 2, "UNCHECKED": 3, "VERIFIED": 4}
+    order = {"MISMATCH": 0, "NOT_FOUND": 1, "WEAK": 2, "NEEDS_VERIFICATION": 3, "UNCHECKED": 4, "VERIFIED": 5}
     counts: dict[str, int] = {}
     for r in results:
         counts[r["status"]] = counts.get(r["status"], 0) + 1
@@ -418,6 +527,28 @@ SELFTEST_BIB = r"""
 }
 """
 
+# Synthetic gray-literature entries; example.org hosts, no real posts.
+SELFTEST_URL_BIB = r"""
+@misc{blog-ok,
+  author = {Toy Author}, title = {A Toy Note on Sum-Check Batching},
+  howpublished = {\url{https://blog.example.org/toy-sumcheck}},
+  urldate = {2026-01-15}, year = {2026},
+}
+@misc{blog-nodate,
+  title = {Toy Lookup Argument Notes},
+  url = {https://hackmd.example.org/toy-lookup}, year = {2025},
+  note = {Archived at \url{https://web.archive.org/web/20250101000000/https://hackmd.example.org/toy-lookup}},
+}
+@online{blog-dead,
+  title = {Toy Folding Post}, url = {https://dead.example.org/toy-folding},
+  urldate = {2026-02-01}, year = {2025},
+}
+@misc{blog-nosnap,
+  title = {Toy Audit Report}, url = {https://audits.example.org/toy-report.pdf},
+  note = {Accessed 2026-03-03}, year = {2026},
+}
+"""
+
 
 def selftest(online: bool) -> int:
     es = parse_bib(SELFTEST_BIB)
@@ -428,6 +559,34 @@ def selftest(online: bool) -> int:
     assert surnames_from_bib(es[0]["fields"]["author"])[-1] == "izabachene"
     assert "placeholder author list ('X and others' only)" in lint(es[1])
     assert title_sim("{TFHE}: Fast Fully", "TFHE: fast fully") == 1.0
+    assert not is_url_source(es[0])            # ePrint-backed @misc keeps the ePrint path
+    # URL sources, with injected network fakes (no real requests)
+    us = {e["key"]: e for e in parse_bib(SELFTEST_URL_BIB)}
+    assert all(is_url_source(e) for e in us.values()), us
+    assert entry_url(us["blog-ok"]["fields"]) == "https://blog.example.org/toy-sumcheck"
+    assert access_date(us["blog-nosnap"]["fields"]) == "2026-03-03"
+    assert explicit_archive(us["blog-nodate"]["fields"]).startswith("https://web.archive.org/web/2025")
+    assert "URL source without access date (urldate)" in lint(us["blog-nodate"])
+    calls = []
+
+    def fake_probe(url, timeout):
+        calls.append(("probe", url, timeout))
+        return ("dead." not in url), ("HEAD 200" if "dead." not in url else "GET <urlopen error timed out>")
+
+    def fake_wayback(url, timeout):
+        calls.append(("wayback", url, timeout))
+        return None if "audits." in url else "http://web.archive.org/web/20260101/" + url
+
+    st = {"delay": 0.0, "url_timeout": 3.0, "probe": fake_probe, "wayback": fake_wayback}
+    got = {k: check_entry(e, False, st) for k, e in us.items()}
+    assert got["blog-ok"]["status"] == "VERIFIED", got["blog-ok"]
+    assert got["blog-nodate"]["status"] == "NEEDS_VERIFICATION" and "no access date" in got["blog-nodate"]["detail"]
+    assert got["blog-dead"]["status"] == "NEEDS_VERIFICATION" and "unreachable" in got["blog-dead"]["detail"]
+    assert got["blog-nosnap"]["status"] == "NEEDS_VERIFICATION" and "no Wayback" in got["blog-nosnap"]["detail"]
+    assert not any(c[0] == "wayback" and "hackmd." in c[1] for c in calls)   # explicit archive URL used
+    assert all(c[2] == 3.0 for c in calls)                                    # timeout passed through
+    assert check_entry(us["blog-ok"], True, st)["status"] == "UNCHECKED"      # offline stays closed
+    assert "| NEEDS_VERIFICATION |" in render(list(got.values()), {})
     print("selftest (offline part): OK")
     if online:
         st = {"delay": 0.5}
@@ -450,6 +609,7 @@ def main(argv=None) -> int:
     ap.add_argument("--only", help="comma-separated keys to check")
     ap.add_argument("--json", help="write JSON report to this file")
     ap.add_argument("--delay", type=float, default=1.0, help="seconds between network lookups")
+    ap.add_argument("--url-timeout", type=float, default=10.0, help="per-request timeout for URL sources")
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--selftest-online", action="store_true", help="selftest incl. two live lookups")
     a = ap.parse_args(argv)
@@ -463,7 +623,7 @@ def main(argv=None) -> int:
     if a.only:
         keep = set(a.only.split(","))
         entries = [e for e in entries if e["key"] in keep]
-    state = {"delay": 0.0 if a.offline else a.delay}
+    state = {"delay": 0.0 if a.offline else a.delay, "url_timeout": a.url_timeout}
     results = []
     for idx, e in enumerate(entries, 1):
         r = check_entry(e, a.offline, state)
