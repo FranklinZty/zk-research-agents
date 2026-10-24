@@ -6,12 +6,12 @@ only advances `STATE.md` when every gate box is ticked. Any agent can send work 
 | Phase | Owner (helpers) | Output | Gate (all must hold) |
 |---|---|---|---|
 | **P0 Scoping** | pi-orchestrator | `STATE.md` thesis, venue, deadline | thesis is one falsifiable sentence; venue CFP read; kill date set |
-| **P1 Literature** | lit-scout (math-librarian) | `LITERATURE.md`, `refs.bib`, `MATH-REFS.md` | matrix ≥ 15 verified works; strongest baseline named; pre-emption search < 7 days old; `bib-verify` passes |
+| **P1 Literature** | lit-scout (math-librarian) | `LITERATURE.md`, `refs.bib`, `MATH-REFS.md` | matrix ≥ 15 verified works with the 2–4 true competitors marked; strongest baseline named; novelty / pre-emption search (ePrint + grey literature) ≤ 14 days old, verdict ≠ taken; `bib-verify` passes |
 | **P2 Ideation** | idea-miner (falsifier screens) | `IDEAS.md`, first `CLAIMS.md` rows | ≥ 1 idea with cost-model gain and kill criterion; top idea registered as claims |
-| **P3 Theory** | theorist (math-librarian) | `THEORY.md`, `lean/` | every lemma numerically checked on small params (`sage-check`); main theorem proof complete; security parameters estimated (`param-estimation`) |
-| **P4 Baselines** | baseline-engineer | `baselines/MANIFEST.md` | strongest baseline builds at pinned commit; its published numbers reproduced within tolerance OR discrepancy documented |
-| **P5 Experiments** | experimenter | `results/`, `EVIDENCE.md` | interleaved runs, ≥ 3 repeats, medians; env captured; every candidate paper number has an EVIDENCE row |
-| **P6 Falsification gate** | falsifier | `CLAIMS.md` verdicts | no `open` claims; refuted claims removed from narrative; weakened wording adopted |
+| **P3 Theory** | theorist (math-librarian) | `THEORY.md`, `lean/` | every lemma numerically checked on small params (`sage-check`); main theorem proof complete (soundness notion, model and setup explicit); soundness budget table with every term marked proven or conjectured (soundness-budget) <!-- TODO: link once skill exists --> |
+| **P4 Baselines** | baseline-engineer | `baselines/MANIFEST.md` | strongest baseline builds at pinned commit; its published numbers reproduced within tolerance OR discrepancy documented; every competitor signed off at the same soundness level as ours (bits and proven/conjectured regime) |
+| **P5 Experiments** | experimenter | `results/`, `EVIDENCE.md` | interleaved runs, ≥ 3 repeats, medians; env captured; every timed run verified its proof; every candidate paper number has an EVIDENCE row |
+| **P6 Falsification gate** | falsifier | `CLAIMS.md` verdicts | no `open` claims; refuted claims removed from narrative; weakened wording adopted; Fiat–Shamir audit (fiat-shamir-audit) and circuit audit (circuit-audit) passed <!-- TODO: link once skills exist --> |
 | **P7 Writing + figures** | writer, figure-artist | `paper/` | playbook sections complete; `crbench audit-tex` passes; 0 undefined refs; figures in house style |
 | **P8 Review → submit → rebuttal → camera-ready** | reviewer-sim, submission-rebuttal | `REVIEWS.md`, `SUBMISSION.md` | mock-review action items closed; `anon_check` clean; checklist done; artifact packaged |
 

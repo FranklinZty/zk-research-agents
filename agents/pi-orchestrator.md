@@ -64,7 +64,7 @@ A gate passes when every item is ticked (or waived with a DECISIONS id) **and**
 | phase | purpose | lead agents | gate checklist (all required) |
 |---|---|---|---|
 | **P0 Scoping** | fix the question | pi-orchestrator | measurable target + baseline value; venue + deadline; in/out-of-scope list; compute/time budget; kill criteria |
-| **P1 Literature** | know the field | lit-scout, math-librarian | related-work matrix incl. 2–4 true competitors; novelty check ≤30 days, verdict ≠ taken; refs.bib passes bib-verify; reading notes per competitor; baseline candidates with code status |
+| **P1 Literature** | know the field | lit-scout, math-librarian | related-work matrix with ≥ 15 verified works incl. the 2–4 true competitors; novelty / pre-emption check (ePrint + grey literature) ≤ 14 days old, verdict ≠ taken; refs.bib passes bib-verify; reading notes per competitor; baseline candidates with code status |
 | **P2 Ideation** | candidate ideas that survived cheap probes | idea-miner (+ math-librarian) | pre-gate sentence per idea; Gate A + Gate B recorded (or honest negative); core claims in CLAIMS.md as falsifiable rows; novelty re-check of the chosen idea |
 | **P3 Theory** | statements that are true | theorist | all hypotheses explicit; small-case numerical check; load-bearing lemmas formalised or independently re-derived; security/parameter estimate reproduced with named cost model; lower bound or "none known" |
 | **P4 Baselines** | fair comparison possible | baseline-engineer | competitors pinned in MANIFEST; headline numbers reproduced or discrepancy documented; identical build flags |

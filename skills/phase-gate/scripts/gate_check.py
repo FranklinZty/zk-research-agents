@@ -13,7 +13,8 @@ Checks (each prints PASS/FAIL/WARN; exit 1 if any FAIL):
   >= P6       CLAIMS.md: no claim in status `open`; every `survived`/`weakened` claim has at
               least one EVIDENCE ref and a non-empty falsifier-evidence cell.
   >= P7       with --paper DIR: every number-with-unit in the .tex sources (e.g. "3.2x", "41%",
-              "2^{128}", "12.5 ms") must appear verbatim in the EVIDENCE.md column
+              "2^{128}", "12.5 ms", "1,048,576 constraints", "2^{20} rows", "210000 gas", "3.1 kB",
+              "5000 cycles", "100 bits of security") must appear verbatim in the EVIDENCE.md column
               "number/fact as printed in paper", unless the line carries "% no-evidence: <reason>".
   >= P8       refs.bib exists and a bib-verify report (bib-verify-report.md) is newer than refs.bib.
 
@@ -80,7 +81,9 @@ def gate_section(state: str, phase: str) -> list[str] | None:
     return out
 
 
-NUM_PAT = re.compile(r"(?<![\w.])(\d+(?:\.\d+)?\s*(?:\\times|×|x\b|\\%|%|\s?(?:ms|s|us|µs|MB|MiB|KB|KiB|GB|GiB|bits?)\b)"
+NUM_PAT = re.compile(r"(?<![\w.,])((?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?\s*(?:\\times|×|x\b|\\%|%"
+                     r"|\s?(?:ms|s|us|µs|kB|KB|KiB|MB|MiB|GB|GiB|bits?(?:\s+of\s+security)?"
+                     r"|constraints|rows|gas|cycles)\b)"
                      r"|2\^\{?\d+\}?)")
 
 
@@ -155,7 +158,7 @@ def check(project: str, phase: str, paper: str | None) -> list[tuple[str, str]]:
             res.append(("FAIL", "bib-verify report missing or older than refs.bib (run verify_bib.py)"))
         else:
             txt = read(rep)
-            if re.search(r"\| (MISMATCH|NOT_FOUND|WEAK|UNCHECKED) \|", txt):
+            if re.search(r"\| (MISMATCH|NOT_FOUND|WEAK|NEEDS_VERIFICATION|UNCHECKED) \|", txt):
                 res.append(("FAIL", "bib-verify report still lists non-VERIFIED entries"))
             else:
                 res.append(("PASS", "bib-verify report clean"))
@@ -180,9 +183,30 @@ def selftest() -> int:
         r = check(d, "P7", "paper")
         assert any("3.5x" in m for s, m in r if s == "FAIL"), r
         assert any("12" in m for s, m in r if s == "FAIL") and not any("99x" in m for _, m in r), r
+        # ZK units: constraints, rows, gas, kB/KiB proof size, cycles, bits (of security)
+        w("paper/main.tex", "Proofs are 3.1 kB, the circuit has 1,048,576 constraints and 4096 rows.\n"
+                            "Verification costs 210000 gas; the trace has 5000 cycles; 100 bits of security.\n")
+        r = check(d, "P7", "paper")
+        fails = " ".join(m for s, m in r if s == "FAIL")
+        for t in ("3.1 kB", "1,048,576 constraints", "4096 rows", "210000 gas", "5000 cycles", "100 bits of security"):
+            assert t in fails, (t, r)
+        w("EVIDENCE.md", "| ID | number/fact as printed in paper | command | log path | commit | machine | date | runs/median |\n"
+                         "|---|---|---|---|---|---|---|---|\n| E1 | 3.1 kB | prove --toy | logs/a | abc | m1 | 2099-01-01 | 5 |\n"
+                         "| E2 | 1,048,576 constraints | count --toy | logs/b | abc | m1 | 2099-01-01 | 1 |\n"
+                         "| E3 | 4096 rows | count --toy | logs/b | abc | m1 | 2099-01-01 | 1 |\n"
+                         "| E4 | 210000 gas | verify --toy | logs/c | abc | m1 | 2099-01-01 | 1 |\n"
+                         "| E5 | 5000 cycles | run --toy | logs/d | abc | m1 | 2099-01-01 | 1 |\n"
+                         "| E6 | 100 bits | soundness --toy | logs/e | abc | m1 | 2099-01-01 | 1 |\n")
+        r = check(d, "P7", "paper")
+        assert all(s != "FAIL" for s, _ in r), r
         w("CLAIMS.md", "| ID | claim | proposer | status | falsifier evidence | EVIDENCE refs |\n|---|---|---|---|---|---|\n"
                        "| C1 | x | y | open | | |\n")
         assert any("still open" in m for s, m in check(d, "P6", None))
+        # P8: a grey-literature entry still NEEDS_VERIFICATION blocks the gate
+        w("STATE.md", "# STATE\n## Gate P8\n- [x] done\n")
+        w("refs.bib", "@misc{toy, url={https://example.org/x}}\n")
+        w("bib-verify-report.md", "| key | status | detail |\n|---|---|---|\n| toy | NEEDS_VERIFICATION | no urldate |\n")
+        assert any("non-VERIFIED" in m for s, m in check(d, "P8", None) if s == "FAIL")
     print("selftest: OK")
     return 0
 

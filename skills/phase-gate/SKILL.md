@@ -16,7 +16,8 @@ python3 skills/phase-gate/scripts/gate_check.py --selftest
 ```
 
 It fails on: unticked gate items (waivers need `WAIVED: <reason> (DECISIONS D-<n>)`), `open` claims from P6 on,
-`survived`/`weakened` claims without EVIDENCE refs or falsifier evidence, paper numbers (×, %, ms, bits, 2^k …)
+`survived`/`weakened` claims without EVIDENCE refs or falsifier evidence, paper numbers (×, %, ms, kB/KiB, bits,
+bits of security, constraints, rows, gas, cycles, 2^k …)
 without a matching EVIDENCE row from P7 on (escape hatch: `% no-evidence: <reason>` on the line, e.g. a number quoted
 from a cited paper), and a missing/stale/unclean bib-verify report at P8.
 
@@ -25,28 +26,35 @@ from a cited paper), and a missing/stale/unclean bib-verify report at P8.
 **P0 Scoping** — [ ] one-paragraph problem statement with a measurable target · [ ] target venue(s) + deadline ·
 [ ] scope: in/out list · [ ] resources (machines, libraries, time budget) · [ ] kill criteria written.
 
-**P1 Literature** — [ ] related-work matrix with ≥ the 2–4 true competitors in bold · [ ] novelty check logged
-(≤30 days, verdict not `taken`) · [ ] refs.bib passes bib-verify · [ ] reading notes for every competitor ·
-[ ] baseline candidates listed with code availability.
+**P1 Literature** — [ ] related-work matrix with ≥ 15 verified works, the 2–4 true competitors in bold ·
+[ ] novelty / pre-emption check logged (≤ 14 days old, ePrint + grey literature, verdict not `taken`) ·
+[ ] refs.bib passes bib-verify · [ ] reading notes for every competitor · [ ] baseline candidates listed with
+code availability.
 
 **P2 Ideation** — [ ] ≥1 idea with pre-gate sentence (security-bearing vs substrate) · [ ] Gate A (freed parameter)
 and Gate B (anomaly) recorded, or honest negative · [ ] every idea's core claims entered in CLAIMS.md as
 falsifiable rows (status `open`) · [ ] novelty re-check for the chosen idea.
 
-**P3 Theory** — [ ] each theorem stated with all hypotheses · [ ] numerically checked (Sage/Python) on small cases ·
-[ ] load-bearing lemmas formalised or independently re-derived · [ ] parameter/security estimate reproduced with an
-estimator, cost model stated · [ ] lower bound or explicit "no bound known".
+**P3 Theory** — [ ] each theorem stated with all hypotheses (soundness notion, model, setup) · [ ] numerically
+checked (Sage/Python) on small cases · [ ] load-bearing lemmas formalised or independently re-derived ·
+[ ] soundness budget table (soundness-budget <!-- TODO: link once skill exists -->): every term with its bits, each
+marked **proven** or **conjectured**, total reproduced by the falsifier · [ ] lower bound or explicit "no bound known".
 
 **P4 Baselines** — [ ] each competitor pinned (url, commit/tag, build recipe) in `baselines/MANIFEST.md` ·
 [ ] baseline reproduces its paper's headline number within tolerance, or the discrepancy is documented ·
-[ ] build flags identical between baseline and ours.
+[ ] build flags identical between baseline and ours · [ ] every competitor signed off at the **same soundness level**
+as ours (same bits, same proven/conjectured regime), with the sign-off in DECISIONS.md.
 
 **P5 Experiments** — [ ] bench protocol (machine, threads, pinning, warm-up, interleaving, repeats) fixed before
-running · [ ] every result in EVIDENCE.md with command/log/commit/machine/date/runs · [ ] control candidate measured ·
+running · [ ] every result in EVIDENCE.md with command/log/commit/machine/date/runs · [ ] every timed run also
+verified its proof (verifier accepted; failures logged, not dropped) · [ ] control candidate measured ·
 [ ] component and end-to-end, absolute and relative.
 
 **P6 Falsification** — [ ] falsifier ruled on every claim (no `open`) · [ ] refuted claims removed or reworded;
-weakened claims restated with their new scope · [ ] cost/price of each gain stated · [ ] PI decision in DECISIONS.md.
+weakened claims restated with their new scope · [ ] cost/price of each gain stated · [ ] Fiat–Shamir audit passed
+(fiat-shamir-audit <!-- TODO: link once skill exists -->) for every non-interactive protocol and implementation ·
+[ ] circuit audit passed (circuit-audit <!-- TODO: link once skill exists -->) for every circuit we claim correct ·
+[ ] PI decision in DECISIONS.md.
 
 **P7 Writing + figures** — [ ] every paper number has an EVIDENCE row · [ ] every claim in the paper maps to a
 `survived`/`weakened` CLAIMS row · [ ] figures regenerated from logged data by script · [ ] related work written from
