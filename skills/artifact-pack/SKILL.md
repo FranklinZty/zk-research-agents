@@ -22,7 +22,11 @@ artifact/
   README.md               claims → commands → expected outputs → time/resources
   LICENSE
   env/                    Dockerfile or environment pinning (requirements.txt with ==,
-                          conda env.yml, or a Nix/Guix file); library commits pinned
+                          conda env.yml, or a Nix/Guix file); library commits pinned;
+                          rust-toolchain.toml + Cargo.lock; GPU driver/CUDA versions
+  setup/                  trusted-setup / SRS parameter files: source + SHA-256 (fetch
+                          script, not the files themselves if large or third-party)
+  keys/                   SHA-256 of compiled circuits, proving and verification keys
   baselines/MANIFEST.md   third-party code: url + pinned commit/tag + build recipe
                           (fetch script, never vendored source trees)
   scripts/
@@ -41,13 +45,29 @@ artifact/
    the script that regenerates it. Main claims first. Anything that cannot be
    regenerated is marked "not reproduced by the artifact" with the reason.
 2. **Pin everything**: compiler version, library commits, Python packages with
-   `==`, estimator commit, random seeds. Record CPU/threads assumptions.
+   `==`, soundness-calculator commit, random seeds. Record CPU/threads assumptions.
+   For ZK artifacts additionally:
+   - **Rust**: a `rust-toolchain.toml` with an exact toolchain (e.g. a dated nightly,
+     never bare `nightly`), the committed `Cargo.lock`, and the exact cargo **feature
+     flags** and `RUSTFLAGS` (e.g. `target-cpu`, `asm`, `parallel`) used for every
+     table; build scripts pass them explicitly.
+   - **GPU**: GPU model, driver version, CUDA (or other toolkit) version, and the GPU
+     library commit; give a CPU fallback or say that GPU results need that stack.
+   - **Circuits and keys**: circuit DSL compiler version, and SHA-256 hashes of the
+     compiled circuit artifacts (e.g. R1CS/ACIR/constraint-system files), proving keys
+     and verification keys; `build.sh` recomputes and compares them.
+   - **Trusted setup**: for every SRS / powers-of-tau / ceremony file, its public
+     source (URL or ceremony transcript), which contribution or round is used, and its
+     SHA-256; a fetch script downloads and checks it. If the artifact generates a
+     local toy setup instead, say clearly that it is insecure and for reproduction only.
 3. **Scripts**: one command per table; print the environment (CPU, compiler, commit)
-   at the start; write logs to `results/`; verify correctness (decryption/cleartext
-   reference) and fail loudly on mismatch.
+   at the start; write logs to `results/`; verify correctness (every generated proof
+   is checked by the verifier; witnesses checked against a reference computation) and
+   fail loudly on mismatch.
 4. **Expected outputs + tolerance**: absolute times vary by machine; state which
-   quantities should match exactly (operation counts, parameters, security
-   estimates, correctness) and which only in ratio (speedups, with an expected band).
+   quantities should match exactly (constraint/row counts, proof sizes, key hashes,
+   parameters, soundness bits, verification results) and which only in ratio
+   (prover/verifier speedups, with an expected band).
    Explain that ratios come from interleaved runs in one session.
 5. **Resource statement**: RAM, disk, cores, expected wall time per script; offer a
    reduced configuration for small machines.
@@ -71,3 +91,8 @@ artifact/
   retract or re-measure before release.
 - Hidden dependence on a proprietary tool (e.g. a commercial MILP solver or computer algebra system);
   provide a free fallback or state it clearly.
+- Unpinned nightly toolchain or default cargo features: the evaluator's build silently differs from yours
+  (different backend, no `asm`, no parallelism).
+- Proving/verification keys regenerated with a different setup file or compiler version, so key hashes and
+  proof sizes no longer match the paper.
+- GPU numbers that only reproduce on one driver/CUDA combination, with no version recorded.

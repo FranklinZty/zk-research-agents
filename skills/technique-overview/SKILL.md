@@ -36,6 +36,31 @@ plausibly true. Ask `reviewer-sim` (generalist persona) to perform exactly this 
    it clearly as not implemented if so.
 8. **Consistency check**: `grep` each displayed formula in the body; string-compare.
 
+## ZK papers: the layered decomposition
+
+ZK reviewers read a construction as a compiler pipeline. Write the overview in that order and say, per layer,
+whether it is **new**, **adapted** (a known component with a change you name) or **off the shelf** (cite it):
+
+| layer | what to state | typical "new here" |
+|---|---|---|
+| relation / arithmetization | the relation R = {(x; w)} and how a computation becomes it (R1CS, Plonkish, AIR, CCS) | a cheaper encoding, custom gate, lookup layout |
+| PIOP | oracles sent, queries made, degree bounds, rounds; soundness error of the information-theoretic protocol | a new sum-check / permutation / lookup argument |
+| PCS | which commitment instantiates the oracles; what the compilation needs (binding, extractability, hiding for ZK, batch openings) | a new or modified PCS, a cheaper batch opening |
+| compiler | Fiat–Shamir transform (non-interactive), or folding / recursion / proof composition | a new folding scheme, a recursion boundary, round-by-round soundness argument |
+
+Rules for this decomposition:
+
+- Open with one sentence that names the stack: "Our SNARK is the <PIOP> compiled with <PCS> and made
+  non-interactive with Fiat–Shamir." Then one Insight per layer that is **new**; layers that are off the shelf get
+  one sentence and a citation, not an Insight.
+- Each Insight states what the layer below must provide (e.g. "the PIOP queries only multilinear oracles, so any
+  multilinear PCS with extractability suffices"). This is where reviewers look for missing compilation hypotheses.
+- Put the cost of each layer in the same units as the P/V/π columns of the comparison table, so the composition
+  paragraph (step 6) is a sum of per-layer costs.
+- Say where soundness is lost: the PIOP error, the PCS error, and the Fiat–Shamir loss; state whether each is proven
+  or conjectured. Do not introduce a security level here that the soundness table does not contain.
+- The grid figure (step 5) can place prior works on two layer axes (e.g. PIOP × PCS); ours fills the empty cell.
+
 ## Style rules
 
 - Describe prior work per paper and mathematically; do not write a tutorial with
