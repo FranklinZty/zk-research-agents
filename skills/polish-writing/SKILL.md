@@ -13,6 +13,25 @@ description: Use for a final language pass on a paper section, or when translati
 - In the last 24 hours before a deadline: no style passes at all, only error fixes.
 - Output: revised text + a short modification log (what and why) so the author can
   accept/reject each change.
+- **ZK term-protection list.** The pairs below name different technical notions. Never
+  merge, swap or "unify" them for consistency, and never shorten one into the other:
+
+  | do not interchange | why |
+  |---|---|
+  | proof ↔ argument | statistical vs computational soundness |
+  | zero-knowledge ↔ honest-verifier ZK | malicious vs honest verifier |
+  | soundness ↔ knowledge soundness | existence vs extraction of a witness |
+  | SNARK ↔ zkSNARK ↔ SNARG | knowledge and/or ZK may not be claimed |
+  | succinct ↔ short | succinct also bounds verifier time |
+  | transparent ↔ universal setup | no trusted setup vs one reusable trusted setup |
+  | proven ↔ conjectured (soundness, proximity) | theorem vs conjecture regime |
+  | statistical ↔ computational ZK | different simulator guarantees |
+
+  Any edit that touches a word from this list (including deleting a qualifier such as
+  "honest-verifier" or "conjectured") is logged with the tag
+  `needs author confirmation` and is not applied silently. Swapping "argument" for
+  "proof", or dropping "honest-verifier", strengthens the claim and is covered by the
+  previous invariant as well.
 
 ## Pass 1 — de-AI
 
@@ -51,7 +70,9 @@ in a row; vary sentence openings; no rhetorical questions in the body.
 
 - Terminology: one name per concept (framework name, stage names, baseline names).
   Build a term list from the notation table and `grep` for variants
-  (e.g. "bootstrap"/"bootstrapping", "look-up table"/"lookup table", "LUT").
+  (e.g. "lookup"/"lookup argument", "sumcheck"/"sum-check", "PCS"/"polynomial
+  commitment"). Do not resolve variants that hit the ZK term-protection list; log
+  them for the author instead.
 - Notation: symbols match the notation table; no symbol reused with two meanings;
   vectors/matrices consistently bold or not.
 - Spelling variety: pick US or UK and stay with it.
@@ -71,11 +92,14 @@ in a row; vary sentence openings; no rhetorical questions in the body.
    name it once, then "our scheme"/its name; "in recent years" as an opener → delete or
    give the year range; "greatly improve" → the number.
 4. Articles: every singular countable noun needs a/the; "the" for things already
-   introduced or unique ("the bootstrapping procedure of [X]").
+   introduced or unique ("the sum-check protocol of [X]").
 5. Tense: present for facts and what the paper does; past for what prior work did
    or for experiments that were run.
 6. Produce three parts: `[LaTeX]` English text, `[Back-translation]` literal Chinese
    of the English (so the author can check meaning), `[Log]` list of changes.
+   Translation choices between protected terms (e.g. 证明 → "proof" or "argument",
+   零知识 → "zero-knowledge" or "honest-verifier zero-knowledge") are always logged
+   as `needs author confirmation`.
 
 ## Pass 5 — read-aloud check
 
