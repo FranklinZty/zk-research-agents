@@ -1,24 +1,27 @@
 #!/usr/bin/env python3
 """lit_matrix.py -- lint the related-work matrix and novelty-check log in LITERATURE.md.
 
-    python3 lit_matrix.py LITERATURE.md [--bib refs.bib] [--max-novelty-age 30]
+    python3 lit_matrix.py LITERATURE.md [--bib refs.bib] [--max-novelty-age 14]
     python3 lit_matrix.py --template          # print an empty matrix + log skeleton
     python3 lit_matrix.py --selftest
 
 Matrix columns (order fixed, header row must match case-insensitively):
-  work | venue/year | setting | technique | asymptotics | concrete numbers + source | code? | our delta
+  work | venue/year | arithmetization | pcs | setup | assumptions/model | pq? | field |
+  p/v/π asymptotics | concrete numbers + source | code? | our delta
 
 Row rules
   * work: contains a bib key  `[@key]`  or  `\\cite{key}`  or an ePrint id  YYYY/NNNN
   * concrete numbers + source: empty, "n/a", or numbers WITH a source pointer
     (Tab./Table/Fig./Sec./§/p./Thm./"measured" + EVIDENCE id E<n>/"reported in")
+  * setup: starts with trusted | universal | transparent | n/a
+  * pq?: yes | no | plausible | n/a  (anything but "no"/"n/a" must name its assumption in assumptions/model)
   * code?: yes <url> | no | unknown
   * our delta: non-empty (what we do that this row does not; "none" is an honest answer and a red flag)
 With --bib: every key used in the matrix must exist in refs.bib.
 
 Novelty log: a section "## Novelty checks" with lines
-  - YYYY-MM-DD | query: "..." | sources: eprint,crossref | window: 12m | hits reviewed: N | verdict: clear|overlap:<key>|taken:<key>
-The newest entry must be at most --max-novelty-age days old (default 30) and must not say "taken".
+  - YYYY-MM-DD | query: "..." | sources: eprint,crossref,grey | window: 12m | hits reviewed: N | verdict: clear|overlap:<key>|taken:<key>
+The newest entry must be at most --max-novelty-age days old (default 14, the P1 gate) and must not say "taken".
 Exit 1 on any error.
 """
 from __future__ import annotations
@@ -28,21 +31,23 @@ import datetime as dt
 import re
 import sys
 
-COLUMNS = ["work", "venue/year", "setting", "technique", "asymptotics",
-           "concrete numbers + source", "code?", "our delta"]
+COLUMNS = ["work", "venue/year", "arithmetization", "pcs", "setup", "assumptions/model", "pq?", "field",
+           "p/v/π asymptotics", "concrete numbers + source", "code?", "our delta"]
+SETUP_PAT = re.compile(r"^(trusted|universal|transparent|n/a)\b", re.I)
+PQ_PAT = re.compile(r"^(yes|no|plausible|n/a)\b", re.I)
 SOURCE_PTR = re.compile(r"(tab\.?|table|fig\.?|figure|sec\.?|§|p\.\s?\d|thm\.?|measured|reported in|\bE\d+\b)", re.I)
 KEY_PAT = re.compile(r"\[@([\w:\-./]+)\]|\\cite[pt]?\{([^}]+)\}")
 EPRINT_PAT = re.compile(r"\b(19|20)\d{2}/\d{2,5}\b")
 
 TEMPLATE = """## Related-work matrix
 
-| work | venue/year | setting | technique | asymptotics | concrete numbers + source | code? | our delta |
-|---|---|---|---|---|---|---|---|
-| [@Key20] Short name | CONF 2020 | params / model / threat model | main idea in <= 12 words | e.g. O(n log n) ops, O(1) rounds | 3.1 ms @ 128-bit (Tab. 4) | yes https://... | what we add; "none" = red flag |
+| work | venue/year | arithmetization | pcs | setup | assumptions/model | pq? | field | p/v/π asymptotics | concrete numbers + source | code? | our delta |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| [@Key20] Short name | CONF 2020 | Plonkish | KZG | universal | AGM + ROM, q-type | no | BN254 scalar | O(n log n) / O(1) / O(1) | 3.1 s P, 0.6 kB @ 2^20 gates (Tab. 4) | yes https://... | what we add; "none" = red flag |
 
 ## Novelty checks
 
-- 2099-01-01 | query: "..." | sources: eprint,crossref | window: 12m | hits reviewed: 0 | verdict: clear
+- 2099-01-01 | query: "..." | sources: eprint,crossref,grey | window: 12m | hits reviewed: 0 | verdict: clear
 """
 
 
@@ -89,6 +94,12 @@ def lint(text: str, bib: set[str] | None, max_age: int, today: dt.date) -> list[
         num = c["concrete numbers + source"]
         if num and num.lower() not in ("n/a", "-", "none") and re.search(r"\d", num) and not SOURCE_PTR.search(num):
             errs.append(f"{tag}: numbers without a source pointer: '{num}'")
+        if not SETUP_PAT.match(c["setup"]):
+            errs.append(f"{tag}: setup must be 'trusted', 'universal', 'transparent' or 'n/a'")
+        if not PQ_PAT.match(c["pq?"]):
+            errs.append(f"{tag}: pq? must be 'yes', 'no', 'plausible' or 'n/a'")
+        elif c["pq?"].lower().startswith(("yes", "plausible")) and not c["assumptions/model"]:
+            errs.append(f"{tag}: pq? claimed without an assumption in assumptions/model")
         if not re.match(r"^(yes\b.*https?://\S+|no\b|unknown\b)", c["code?"], re.I):
             errs.append(f"{tag}: code? must be 'yes <url>', 'no' or 'unknown'")
         if not c["our delta"]:
@@ -120,6 +131,14 @@ def selftest() -> int:
     e = lint(bad, {"Other"}, 30, dt.date(2000, 3, 1))
     assert any("source pointer" in x for x in e) and any("code?" in x for x in e)
     assert any("not in refs.bib" in x for x in e) and any("days old" in x for x in e), e
+    bad = good.replace("| universal |", "| none |").replace("| no | BN254", "| maybe | BN254")
+    e = lint(bad, {"Key20"}, 30, dt.date(2000, 1, 20))
+    assert any("setup must be" in x for x in e) and any("pq? must be" in x for x in e), e
+    bad = good.replace("| AGM + ROM, q-type | no |", "|  | plausible |")
+    e = lint(bad, {"Key20"}, 30, dt.date(2000, 1, 20))
+    assert any("without an assumption" in x for x in e), e
+    old = good.replace("| work | venue/year | arithmetization |", "| work | venue/year | setting |")
+    assert any("header" in x for x in lint(old, {"Key20"}, 30, dt.date(2000, 1, 20)))
     print("selftest: OK")
     return 0
 
@@ -128,7 +147,7 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("literature", nargs="?")
     ap.add_argument("--bib")
-    ap.add_argument("--max-novelty-age", type=int, default=30)
+    ap.add_argument("--max-novelty-age", type=int, default=14)
     ap.add_argument("--template", action="store_true")
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args(argv)

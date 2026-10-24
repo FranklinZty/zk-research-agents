@@ -20,10 +20,10 @@ prior work), `references/reading-lists/*.md` (seeds), existing `LITERATURE.md`, 
 
 - **`LITERATURE.md`** with three sections:
   1. `## Related-work matrix` — columns exactly
-     `| work | venue/year | setting | technique | asymptotics | concrete numbers + source | code? | our delta |`
+     `| work | venue/year | arithmetization | pcs | setup | assumptions/model | pq? | field | p/v/π asymptotics | concrete numbers + source | code? | our delta |`
      (competitors in **bold**; numbers carry a Tab./Fig./Sec./p. pointer or `measured E<n>`).
   2. `## Novelty checks` — one line per check:
-     `- YYYY-MM-DD | query: "..." | sources: eprint,crossref | window: 12m | hits reviewed: N | verdict: clear|overlap:<key>|taken:<key>`
+     `- YYYY-MM-DD | query: "..." | sources: eprint,crossref,grey | window: 12m | hits reviewed: N | verdict: clear|overlap:<key>|taken:<key>`
   3. `## Reading log` — which papers were read, which sections, by whom, date; which were only skimmed.
 - **`refs.bib`** — only entries that pass `verify_bib.py`, or carry a `% UNVERIFIED` line above them.
 - **`bib-verify-report.md`** — output of the last verifier run (must be newer than refs.bib).
