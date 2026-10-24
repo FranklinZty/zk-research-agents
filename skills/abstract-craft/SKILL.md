@@ -23,13 +23,20 @@ list (`paper/sections/intro.tex`), target venue (for length norms, see
      significantly (without a number), first (unless a literature search in
      `LITERATURE.md` supports it, and even then prefer "to our knowledge, the first").
    - every number → EVIDENCE row id noted in a LaTeX comment `% EV:E12`.
-   - every scope noun ("13 rings", "all primes p ≡ 1 mod 4") → matches the
-     parameter/security tables.
+   - every scope noun ("12 circuits", "all fields of characteristic p > 2^{60}") →
+     matches the parameter/soundness tables.
+   - soundness status stated: every security level says whether it is **proven** or
+     rests on a **conjecture** (e.g. a proximity-gap conjecture beyond the Johnson
+     bound); and the **setup** is named as transparent, universal (updatable SRS) or
+     trusted (circuit-specific).
+   - "post-quantum" / "plausibly post-quantum" only with the assumption it rests on
+     (e.g. "collision-resistant hashing in the ROM"); never for schemes whose
+     soundness or binding uses pairings or discrete log.
 5. **Consistency pass**: abstract ↔ contributions ↔ conclusion use the same numbers,
    the same order and the same framework name.
-6. **Length**: IACR LNCS: fits page 1 with keywords (typically 200–300 words).
-   ToSC/TCHES: usually 200–280 words. Security conferences: often ≤ 200–250 words in
-   the submission form. Check the CFP.
+6. **Length**: follow the venue norms in
+   [venue-calibration](../venue-calibration/SKILL.md) and the CFP; the submission-form
+   limit can be shorter than the PDF abstract.
 7. **Plain-text twin** `paper/abstract_plain.txt` for the submission form.
 
 ## Sentence-function table (7–10 sentences)
@@ -41,24 +48,26 @@ list (`paper/sections/intro.tex`), target venue (for length norms, see
 | S3 | open question | "However, ... has remained open." |
 | S4 | our object and viewpoint | "We present/propose X, which views ... as ..." |
 | S5–S6 | technical points, one each | "First, ... At the same time, ..." or structure → bound → construction |
-| S7 | what we *prove* (property, not activity) | not "we analyse security" but "we prove that no attacker learns ... from three or fewer outputs" |
-| S8 | scope → range → concrete points vs named baseline | measured on the same machine, if true, say so |
+| S7 | what we *prove* (property, not activity) | not "we analyse security" but "we prove knowledge soundness in the ROM with error ≤ 2^{-λ} for ..." |
+| S8 | scope → range → concrete points vs named baseline | same soundness level, same machine; if true, say so |
 | S9 | artifact / formalisation / invitation for analysis | exact scope of formal verification |
 
 ## Upgrading weak sentences
 
 | weak | strong |
 |---|---|
-| "We give a complete security analysis." | "Every considered attack needs more than 2^128 operations; the tightest margin comes from <attack> at 2^{x}." |
-| "Our method is much faster." | "On N instances at ≥λ-bit security, <stage> is 2.1–3.4× faster than <baseline> in the same library." |
-| "We formally verify our results in Lean." | "The algebraic core (Lemmas 2–5) is machine-checked in Lean 4; the noise analysis is not." |
-| "We unify prior work." | "The methods of [A] and [B] are the cases w=1 and k=1 of our construction." |
+| "Our SNARK is efficient." | "At 128-bit provable soundness, proofs are X kB and the prover is 2.1–3.4× faster than Y on the same machine." |
+| "Our scheme is secure." | "We prove knowledge soundness in the ROM; at the default parameters soundness is λ₁ bits proven, or λ₂ bits under the proximity-gap conjecture of [A]." |
+| "Our protocol needs no trusted setup and is post-quantum." | "The setup is transparent, and soundness relies only on collision-resistant hashing in the ROM, which makes it plausibly post-quantum." |
+| "We formally verify our results in Lean." | "Completeness and soundness of the sum-check core (Lemmas 2–5) are machine-checked in Lean 4; the Fiat–Shamir compilation is not." |
+| "We unify prior work." | "The lookup arguments of [A] and [B] are the cases k=1 and t=1 of our construction." |
 
 ## Headline-range hygiene
 
 - Lower end = the most conservative **measured** number; if the upper end is an
   estimate, label it as an estimate in the table and say "up to ... (estimated)".
-- Never mix instances below the claimed security level into the range.
+- Never mix instances below the claimed security level into the range, and never mix
+  proven and conjectured soundness levels in one range.
 - If a baseline number is reproduced rather than taken from the paper, the abstract
   compares against the reproduced number and the paper reports both.
 

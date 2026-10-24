@@ -1,98 +1,109 @@
 # Toy abstracts — good vs bad
 
 All three papers are **invented**. Every number is **illustrative only** and marked
-`[ill.]`; none comes from a real measurement. Citations like [A23] are placeholders.
+`[ill.]`; none comes from a real measurement. Citations like [A23] are placeholders,
+and system names such as ToyLookup, ToyProver or ToyFRI-SNARK do not exist.
 
 ---
 
-## T1 — Faster PBS via LUT packing (FHE)
+## T1 — A lookup argument with table-independent prover cost (protocol / theory)
 
 ### Bad
 
-> Fully homomorphic encryption is a very important and novel technology. In this
-> paper we propose a novel and efficient method for programmable bootstrapping.
-> Our method uses packing. We implemented it and it is significantly faster than
-> previous methods, up to 9.1× [ill.]. We also prove rigorous guarantees on its
-> correctness. Code is available at https://github.com/<real-username>/lutpack.
+> Zero-knowledge proofs are a very important and novel technology. In this paper we
+> propose a novel and efficient lookup argument. Our scheme is secure and
+> post-quantum. We implemented it and it is significantly faster than previous
+> methods, up to 9.1× [ill.]. Code is available at
+> https://github.com/<real-username>/toylookup.
 
 What is wrong: no bottleneck, no prior routes, no open question; "novel",
-"significantly" without scope; the ratio has no baseline or scope; "rigorous
-guarantees" overstates; the link de-anonymises the submission.
+"significantly" without scope; "secure" names neither soundness notion nor model;
+"post-quantum" without the assumption (and the toy scheme uses a pairing-based PCS);
+the ratio has no baseline, no security level, no machine; the link de-anonymises the
+submission.
 
 ### Good
 
-> Programmable bootstrapping (PBS) is the dominant cost of TFHE-style schemes, and
-> circuits over small integers spend most of their time evaluating many small
-> lookup tables. Existing work amortises PBS either by evaluating several tables in one
-> PBS of doubled ring degree [A23] (EUROCRYPT'23) or by tree-based evaluation of a
-> larger table [B24] (CRYPTO'24). Whether k small tables can share a single blind
-> rotation at the original ring degree has remained open.
+> Lookup arguments let a prover show that every entry of a committed vector lies in a
+> public table, and they dominate the cost of range checks and non-native arithmetic
+> in Plonkish circuits. Existing arguments either pay prover work linear in the table
+> size [A23] (CRYPTO'23) or require a circuit-specific preprocessing of the table
+> [B24] (EUROCRYPT'24). Whether a lookup argument can have prover work independent of
+> the table size without per-table preprocessing has remained open.
 >
-> We present packed test polynomials, which view k tables as interleaved windows of
-> one test polynomial. We show that the window width, not the number of tables,
-> bounds the packing factor, giving k ≤ N/(2tw), and that the k outputs are separated
-> by key switching alone. Prior multi-value PBS is the case w = 1 of our construction.
-> The resulting evaluator costs one blind rotation plus k key switches for k tables.
+> We present ToyLookup, which views a lookup as a sum-check over the logarithmic
+> derivative of the looked-up multiset. We show that the prover only commits to
+> values proportional to the number of lookups m, and that the table enters solely
+> through one evaluation that the verifier computes in O(log N) time for structured
+> tables. The lookup of [A23] is the case k = 1 of our construction. We prove
+> knowledge soundness in the algebraic group model and the ROM, with a universal
+> setup.
 >
-> On 6 [ill.] parameter sets at ≥128-bit estimated security, packing k = 4 [ill.]
-> tables reduces the per-table PBS latency by 2.1–3.4× [ill.] over the strongest
-> baseline in the same library, e.g. 11.0 → 3.9 ms [ill.] for 4-bit tables. Our
-> implementation is publicly available.\footnote{anonymous link}
+> For m = 2^{20} [ill.] lookups into a table of size N = 2^{32} [ill.], at 128-bit
+> soundness (proven) the prover is 2.1–3.4× [ill.] faster than [A23] on the same
+> machine, and proofs grow by 0.6 kB [ill.]. Our implementation is publicly
+> available.\footnote{anonymous link}
 
 ---
 
-## T2 — New differential distinguisher (symmetric cryptanalysis)
+## T2 — Memory-bounded FRI prover (system / implementation)
 
 ### Bad
 
-> We study the security of ToySPN-64. Using SAT solvers, we found a new
-> distinguisher. Our distinguisher is the best one. This shows ToySPN-64 is insecure.
+> We build a fast STARK prover. It uses GPUs and is the fastest prover. It is
+> post-quantum and has 128-bit security.
 
-Wrong: "study" with no result; no prior best; "best" without comparison; overclaims
-insecurity from a distinguisher on reduced rounds.
+Wrong: no workload; "fastest" without comparison; "128-bit security" does not say
+whether soundness is proven or conjectured; "post-quantum" without the assumption;
+nothing about what the timing includes (witness generation? trace commitment?).
 
 ### Good
 
-> ToySPN-64 is a lightweight 64-bit SPN whose designers claim resistance to
-> differential cryptanalysis beyond 4 rounds [C22]. Prior analyses search
-> characteristics one trail at a time [C22, D23] and reach 4 rounds with
-> probability 2^{-60} [ill.]; clustering of trails into differentials has not been
-> exploited.
+> FRI-based provers are bottlenecked by memory traffic during trace commitment: for
+> traces beyond device memory, existing GPU provers fall back to the CPU [C22] or
+> stream the trace several times [D23]. Whether the low-degree extension can be
+> committed in a single streaming pass with bounded memory has remained open.
 >
-> We model truncated differences and trail clustering jointly in one SAT
-> instance, counting all characteristics compatible with a fixed input/output
-> difference. We show that the S-box admits a 2-round iterative truncated pattern
-> that the designers' bound does not cover.
+> We present ToyProver, which reorders the NTT and Merkle-hashing passes so that each
+> column of the extended trace is hashed as soon as it is produced. We show that the
+> peak memory is O(√n) columns [ill.] instead of O(n), with no change to the proof.
+> The setup is transparent and soundness relies only on collision-resistant hashing
+> in the ROM, which makes the system plausibly post-quantum.
 >
-> This yields a 6-round distinguisher with probability 2^{-58} [ill.], two rounds
-> beyond the designers' claim, verified experimentally on 5 rounds with 2^{30} [ill.]
-> pairs. The full-round cipher is not affected. Our models and verification scripts
-> are available.\footnote{anonymous link}
+> On 5 [ill.] zkVM traces of 2^{22}–2^{26} [ill.] rows at the same FRI parameters
+> as the baseline (100-bit proven, 128-bit conjectured soundness [ill.]), end-to-end
+> proving time excluding witness generation drops by 1.4–1.9× [ill.] and peak memory
+> by 5.2× [ill.] versus [D23] on the same GPU. Our implementation and scripts are
+> available.\footnote{anonymous link}
 
 ---
 
-## T3 — PSI with lower communication (protocols)
+## T3 — Range-checked credential circuit (application / circuit)
 
 ### Bad
 
-> PSI has many applications. We give a new PSI protocol which uses less
-> communication than all other protocols.
+> Privacy matters. We give a ZK circuit for anonymous credentials which uses fewer
+> constraints than all other circuits.
 
-Wrong: no setting (balanced/unbalanced, semi-honest/malicious), "all other
-protocols" is unfalsifiable, no numbers.
+Wrong: no statement of what is proved, no proof system, "all other circuits" is
+unfalsifiable, constraint counts are not comparable across arithmetizations, no
+numbers.
 
 ### Good
 
-> Unbalanced private set intersection, where a client with m items queries a server
-> with n ≫ m items, is dominated by communication linear in n in OPRF-based protocols
-> [E21] (CCS'21) and by expensive homomorphic evaluation in FHE-based ones [F22]
-> (USENIX'22). Whether OPRF-based protocols can reach communication sublinear in n
-> without homomorphic encryption has remained open.
+> Anonymous credentials with attribute predicates (e.g. "age ≥ 18") are commonly
+> proved with Groth16 over R1CS, where range checks by bit decomposition account for
+> most constraints [E21] (CCS'21). Lookup-based range checks reduce this cost in
+> Plonkish systems [F22], but no credential circuit has combined them with
+> in-circuit signature verification over a non-native curve.
 >
-> We present a cuckoo-filter variant whose false-positive rate depends on the
-> fingerprint length only, not on the load factor, and use it to compress the
-> server's OPRF outputs. We prove semi-honest security in the OPRF-hybrid model.
+> We present a Plonkish circuit for credential presentation that replaces every
+> bit-decomposition range check by a lookup into a 2^{16}-entry [ill.] table and
+> verifies the issuer signature with limb-wise non-native arithmetic. Every gadget
+> is checked for under-constraint by exhaustive witness enumeration over a toy field.
 >
-> For n = 2^{24} and m = 2^{10} [ill.], our protocol sends 1.3× [ill.] fewer bytes
-> than the best OPRF-based baseline at the same statistical security σ = 40, with
-> the same round count. Source code is provided.\footnote{anonymous link}
+> For a credential with 8 [ill.] attributes, the circuit has 2^{17} [ill.] rows
+> versus 2^{19} [ill.] rows for a bit-decomposition variant of the same statement in
+> the same proof system, and proving takes 1.3 s [ill.] on a laptop, including
+> witness generation. The setup is universal. Circuits and test vectors are
+> provided.\footnote{anonymous link}
