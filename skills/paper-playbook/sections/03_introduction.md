@@ -8,8 +8,9 @@ not a bullet list. It must read as if written by a person who knows the field.
 ```
 [field]        One sentence on what the primitive enables; cite the founding works.
 [schemes]      Which schemes/protocols are the ones of choice for this task, and why.
-[need]         Why the expensive component exists at all (e.g. noise → bootstrapping;
-               data → OPRF evaluation; rounds → trail search).
+[need]         Why the expensive component exists at all (e.g. non-native values →
+               range checks → lookups; succinct verification → polynomial commitments →
+               MSMs or Merkle hashing; long traces → memory traffic).
 [lineage]      The line of work in one sentence, citing it once as a block of refs.
 [bottleneck]   What has remained the dominant cost throughout that line, ideally with
                a citable measurement from prior work.
@@ -55,19 +56,22 @@ Alternative for design papers (three titled subsections that form an argument):
 "X: what it is and why it was abandoned" → "Why revisit X now" → "Our approach and
 roadmap".
 
-## Toy example (T3, PSI; numbers illustrative)
+## Toy example (T2, memory-bounded FRI prover; numbers illustrative)
 
-> Private set intersection (PSI) lets two parties learn the intersection of their
-> sets and nothing more [..]. Among the many designs, OPRF-based protocols are the
-> ones of choice for unbalanced sets, since the large set is processed once offline
-> [..]. [...] Throughout this line of work, communication has remained linear in the
-> larger set [...]. Concretely, an OPRF-based protocol factors into three stages:
-> (i) hashing ..., cost O(n); (ii) OPRF evaluation ..., cost O(m) group operations;
-> (iii) comparison ..., cost O(m log m) bits. Every previous construction can be cast
-> as solving
-> min comm(H) s.t. H is an (m, n, ε)-hashing scheme with false-positive rate ≤ 2^{-σ}. (1)
-> Whether structure in the hashing scheme beyond its load factor can lower (1)
-> further has remained open.
+> Succinct arguments let a prover convince a verifier that a computation was carried
+> out correctly, with verification much cheaper than the computation [..]. Among
+> them, FRI-based arguments over small fields are the ones of choice for long
+> computations such as zkVM executions, because they need no trusted setup and their
+> prover work is dominated by fast field arithmetic and hashing [..]. [...]
+> Throughout this line of work, peak memory has remained linear in the trace length
+> [...]. Concretely, an FRI-based prover factors into four stages:
+> (i) witness (trace) generation ..., memory O(n w); (ii) low-degree extension ...,
+> O(n w / ρ) field elements; (iii) Merkle commitment ..., O(n w / ρ) hashes;
+> (iv) FRI folding and openings ..., O(n / ρ). Every previous prover can be cast as
+> solving
+> min time(S) s.t. S is a schedule of (ii)–(iii) with peak memory ≤ M. (1)
+> Whether a schedule with M sublinear in n exists without changing the proof has
+> remained open.
 
 ## Checklist
 

@@ -2,61 +2,66 @@
 
 Invented papers; all numbers and citations illustrative.
 
-## Related-work table (T3, PSI)
+## Related-work table (T1, lookup arguments)
 
 ```latex
 \begin{table}[t]
 \centering\scriptsize
-\caption{Asymptotic comparison of unbalanced PSI protocols. $n$: server set size;
-$m$: client set size; $\sigma$: statistical security; $\lambda$: computational
-security. $\dagger$: semi-honest only. $\ddagger$: requires FHE.}
+\caption{Asymptotic comparison of lookup arguments for $m$ lookups into a table of
+size $N$. Prover: field operations and MSM size (group-based PCS); Proof: group and
+field elements. $\dagger$: table must be preprocessed per circuit.
+$\ddagger$: table must have a succinctly evaluable multilinear extension.
+KS: knowledge soundness; all rows in the ROM.}
 \label{tab:related}
 \renewcommand{\arraystretch}{0.92}
-\begin{tabular}{llccc}
+\begin{tabular}{llcccc}
 \toprule
-Technique & Method & Communication & Server comp. & Rounds \\
+Technique & Method & Prover & Proof & Setup & Notion \\
 \midrule
-\multirow{2}{*}{OPRF-based} & [E21]$^\dagger$ & $O(n\,(\sigma+\log nm))$ & $O(n)$ & 2 \\
-                            & [G23]          & $O(n\,\sigma)$           & $O(n)$ & 2 \\
+\multirow{2}{*}{Grand product} & [C20]          & $O(m+N)$, MSM $m+N$ & $O(1)$     & universal & KS \\
+                               & [D22]$^\dagger$ & $O(m)$, MSM $m$     & $O(1)$     & universal & KS \\
 \midrule
-FHE-based & [F22]$^\ddagger$ & $O(m\log n)$ & $O(n)$ HE ops & 1 \\
+Log. derivative & [A23] & $O(m+N)$, MSM $m+N$ & $O(\log(m+N))$ & universal & KS \\
 \midrule
-\textbf{Ours} & & $O(n\,\sigma/c)$ & $O(n)$ & 2 \\
+\textbf{Ours}$^\ddagger$ & & $O(m)$, MSM $m$ & $O(\log m)$ & universal & KS, ZK \\
 \bottomrule
 \end{tabular}
 \end{table}
 ```
 
-Rules shown: caption defines every symbol; daggers mark scope; last row "Ours"
-matches the formula in the abstract.
+Rules shown: caption defines every symbol and the model; daggers mark scope; the
+"Notion" column keeps knowledge soundness and ZK visible; the last row "Ours" matches
+the formula in the abstract.
 
 ## Contrasting-verb bullets (T1)
 
-> Recently, two independent lines of work exploit the structure of the test
-> polynomial rather than its degree alone:
-> - **Multi-value PBS** restricts *what* is encoded: several tables share one
->   polynomial whose coefficients factor through a common term [A23]; however, it
->   requires tables with a common factor, leaving general tables open.
-> - **Tree-based PBS** restricts *how* a table is read: a large table is split into
->   levels evaluated by successive rotations [B24]; the number of rotations grows with
->   the table size.
+> Recently, two independent lines of work exploit the structure of the multiplicity
+> vector rather than the table size alone:
+> - **Preprocessed lookups** restrict *when* the table is paid for: the table is
+>   committed once per circuit and reused [D22]; however, each new table needs a new
+>   preprocessing, leaving dynamic tables open.
+> - **Logarithmic-derivative lookups** restrict *how* membership is checked: a
+>   rational identity replaces the grand product [A23]; the prover still commits to
+>   a vector of length N.
 
 ## Bad vs good overview headings
 
 | bad | good |
 |---|---|
-| "Why packing is needed" | "Window width, not table count, bounds the packing factor." |
-| "Where the cost goes" | "Output separation is linear and therefore free of bootstrapping." |
-| "The SAT model" | "Clustering turns a trail search into a model-counting problem." |
-| "Our hashing" | "Fingerprint length alone fixes the false-positive rate." |
+| "Why lookups are needed" | "The support of the multiplicities, not the table, bounds the prover's commitments." |
+| "Where the cost goes" | "For structured tables the table side is an evaluation the verifier computes itself." |
+| "The streaming schedule" (T2) | "Interleaving extension and hashing makes memory independent of the trace length." |
+| "Our circuit" (T3) | "A 16-bit lookup table replaces every bit decomposition without new witnesses." |
 
-## Tiny worked example (T2)
+## Tiny worked example (T1)
 
-> Take the 4-bit S-box S = [6,4,12,5,0,7,2,14,1,15,3,13,8,10,9,11] [ill.]. Its DDT has
-> maximum entry 4 [ill.], so a single-trail bound gives 2^{-2} per active S-box. The
-> input difference 0x3 maps to 0x3 with probability 2^{-2} [ill.] through two rounds
-> via 4 [ill.] distinct characteristics, so the differential probability is 2^{-1}
-> [ill.], a factor of 2 [ill.] above the single-trail bound.
+> Over 𝔽₁₇ take the table t = (0, 1, 2, 3), the looked-up vector a = (1, 1, 3) and
+> multiplicities c = (0, 2, 0, 1). At γ = 5 the left side is
+> 1/6 + 1/6 + 1/8 = 3 + 3 + 15 = 4 and the right side is 2·(1/6) + 1·(1/8) = 4, so the
+> identity holds. For a' = (1, 1, 4), which leaves the table, the left side at γ = 5
+> is 3 + 3 + 2 = 8 ≠ 4; exhaustively, the identity with c fails for all 12 admissible
+> γ (the 5 values making a denominator zero are excluded), well below the bound of
+> m + N − 1 = 6 bad challenges.
 
-Every number in such an example must be recomputable by a script (e.g. with the
-`cryptomath.symmetric` DDT helper) listed in `EVIDENCE.md`.
+Every number in such an example must be recomputable by a script (e.g. a copy of
+`skills/sage-check/scripts/sanity_check_template.py`) listed in `EVIDENCE.md`.

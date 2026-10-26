@@ -19,10 +19,13 @@ does not save pages; check the CFP.
   theorem they illustrate and must be recomputable by a script listed in EVIDENCE.
 - Algorithms in the appendix use exactly the body's symbols.
 - Appendix tables are generated from the same data files as body tables.
-- Typical experiment appendix: D.1 full instance list, D.2 per-instance security
-  estimates (with explanation of any "∞"/not-applicable entries), D.3 derived bounds,
-  D.4 reproduction (scripts, commands, log paths, machine load reference), D.5
-  operation counts, D.6 integration details.
+- Typical ZK appendix: A full proofs (completeness, knowledge soundness with the
+  extractor, ZK with the simulator) in body order; B the soundness calculation per
+  parameter set (every term, proven and conjectured); C circuit specifications and
+  gadget correctness arguments; D experiments: D.1 full workload list with each
+  system's own size unit, D.2 per-phase prover times, D.3 thread scaling and memory,
+  D.4 reproduction (scripts, commands, log paths, commits), D.5 baseline
+  configurations.
 - Every "see the appendix" in the body names the exact subsection label.
 - Do not `\input` files that are entirely commented out.
 

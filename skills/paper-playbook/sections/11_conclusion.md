@@ -13,8 +13,8 @@ Two to three sentences, no new information, at most half a page.
 ## Rules
 
 - Same numbers, scope and wording as the abstract. No claim that the abstract lacks.
-- Symmetric-design papers: include generalisability and invite third-party
-  cryptanalysis; publish the analysis scripts.
+- System papers: name the regime (proven or conjectured soundness) of the headline
+  numbers again, and publish the benchmark scripts.
 - Theory papers: one or two precise open problems are welcome.
 - If pages are tight, the optional third sentence is the first thing to go; the
   conclusion must still end on the last allowed body page.
@@ -22,8 +22,8 @@ Two to three sentences, no new information, at most half a page.
 
 ## Toy (T2, illustrative)
 
-> We showed that a SAT model with a truncated-difference layer finds 6-round
-> distinguishers for ToySPN-64 that exhaustive-trail search misses, and that its cost
-> grows linearly in the number of rounds. The resulting distinguisher has probability
-> 2^{-58} [illustrative], two rounds more than the best previous one. Extending the
-> model to related-key trails is left open.
+> We showed that interleaving the low-degree extension with Merkle hashing lets an
+> FRI-based prover commit to a trace with peak memory O(√n) columns, without changing
+> the proof. On zkVM traces of 2^{22}–2^{26} rows at 100-bit proven soundness, proving
+> is 1.4–1.9× faster [illustrative] than the strongest streaming baseline on the same
+> GPU. Extending the schedule to multilinear commitments is left open.

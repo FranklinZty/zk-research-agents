@@ -24,8 +24,9 @@ on page 1 (adjust only abstract-local negative `\vspace`, never global geometry)
 5. If you claim to unify prior work, include the sentence that places prior methods
    inside your framework ("the methods of A and B are the cases w=1 and k=1"). That
    sentence is the evidence for "unified".
-6. ¶③ scoping first: "On N instances at ≥λ-bit estimated security, ..." then the
-   range, then concrete points. If the scope changes, recompute every range.
+6. ¶③ scoping first: "On N circuits of 2^a–2^b constraints at λ-bit soundness
+   (proven), with prover time including witness generation, ..." then the range, then
+   concrete points. If the scope changes, recompute every range.
 7. The artifact sentence goes last, with an anonymous link in a footnote during
    review. Formalisation claims state exactly what was machine-checked.
 8. Budget: the abstract must fit on page 1 with keywords and footnotes. If over,
@@ -36,7 +37,9 @@ on page 1 (adjust only abstract-local negative `\vspace`, never global geometry)
 - Words that overstate proof status: "rigorous guarantee", "turns the heuristic into
   a theorem", "optimal" without a proven optimality statement.
 - Scope that does not match the tables (e.g. counting instances below the stated
-  security level).
+  security level, or a conjectured level stated without saying so).
+- "Post-quantum", "transparent", "zero-knowledge" or "succinct" without the
+  assumption, setup or theorem that backs it.
 - Symbols defined only in the body or appendix.
 - Attributing a composite improvement to a single component.
 - Ratios against an unoptimised or outdated baseline when a stronger baseline exists.

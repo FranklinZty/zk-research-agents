@@ -1,9 +1,9 @@
 ---
 name: paper-playbook
-description: Use when drafting or restructuring a cryptography paper (IACR LNCS / IACR journal / security-conference format). Gives the overall skeleton, page budget, and the rhetorical moves of every section from title to appendix, with good/bad toy examples.
+description: Use when drafting or restructuring a ZK paper (protocol/theory, system/implementation, or application/circuit) in IACR LNCS, IACR journal or security-conference format. Gives the overall skeleton, page budget per paper type, and the rhetorical moves of every section from title to appendix (relation/PIOP/PCS/FS preliminaries, protocol boxes, completeness/knowledge soundness/ZK/concrete soundness), with good/bad toy examples.
 ---
 
-# Paper Playbook — structure and rhetorical moves for crypto papers
+# Paper Playbook — structure and rhetorical moves for ZK papers
 
 The playbook fixes the **form** of a paper; the content is always rewritten for the
 new paper. Templates here are structures, not wording to copy.
@@ -28,31 +28,42 @@ new paper. Templates here are structures, not wording to copy.
 
 | file | section |
 |---|---|
-| `sections/00_overall_structure.md` | skeleton, page budget, layout hard rules, notation freeze |
+| `sections/00_overall_structure.md` | skeleton, page budget per paper type, layout hard rules, notation freeze |
 | `sections/01_title.md` | title patterns and anti-patterns |
 | `sections/02_abstract.md` | three-part paradigm (state of the art → technique → results/artifact) |
 | `sections/03_introduction.md` | funnel → pipeline → objective equation → open question |
 | `sections/04_contributions.md` | lead-in + ordered bullets; wording rules |
 | `sections/05_technique_overview.md` | recall routes → reduce to questions → insights answer them |
 | `sections/06_related_work.md` | organise by axis not by time; comparison table; bridge paragraph |
-| `sections/07_preliminaries.md` | compact notation table, only what is reused |
-| `sections/08_main_construction.md` | statement → construction → cost/selection rule |
-| `sections/09_security_correctness.md` | security claim, attack checklist, correctness/noise |
-| `sections/10_experiments.md` | nine-part evaluation section; number discipline |
+| `sections/07_preliminaries.md` | notation; relation ℛ = {(𝕚, 𝕩; 𝕨)}, PIOP, PCS, Fiat–Shamir; only what is reused |
+| `sections/08_main_construction.md` | relation → PIOP protocol box (cryptocode) → theorem → compilation → cost/selection rule |
+| `sections/09_security_correctness.md` | completeness, knowledge soundness (extractor), zero knowledge (simulator), concrete soundness table (proven vs conjectured) |
+| `sections/10_experiments.md` | nine-part evaluation section; timing scope; number discipline |
 | `sections/11_conclusion.md` | two-to-three sentence conclusion |
 | `sections/12_appendix.md` | appendix organisation; "not load-bearing" rule |
 | `examples/toy_abstracts.md` | good/bad abstracts for three toy papers |
-| `examples/toy_intro_and_contributions.md` | toy intro funnel + contribution list, good vs bad |
-| `examples/toy_overview_and_related.md` | toy technique overview and related-work table |
+| `examples/toy_intro_and_contributions.md` | toy intro funnel + contribution list, good vs bad (T1) |
+| `examples/toy_overview_and_related.md` | toy related-work table, contrasting-verb bullets, overview headings, worked example |
+| `examples/toy_security_and_eval.md` | toy theorem statements, extractor/simulator sketches, soundness and comparison tables |
 
 Toy papers used throughout (all numbers are **invented and illustrative**):
 
-- **T1 (FHE):** "faster programmable bootstrapping (PBS) via LUT packing" — pack
-  several small lookup tables into one test polynomial.
-- **T2 (symmetric):** "a new 6-round differential distinguisher for a toy SPN" found
-  by SAT-based trail search.
-- **T3 (protocols):** "PSI with lower communication" via a toy OPRF + cuckoo-hash
-  variant.
+- **T1 (protocol / theory):** "ToyLookup", a lookup argument whose prover cost is
+  independent of the table size, via a sum-check over the logarithmic derivative.
+- **T2 (system / implementation):** "ToyProver", a memory-bounded FRI prover that
+  streams the low-degree extension into the Merkle commitment.
+- **T3 (application / circuit):** a range-checked anonymous-credential circuit that
+  replaces bit decompositions by lookups and verifies a non-native signature.
+
+Page budget by paper type (LNCS, ~25–30 pp. body; details in `00_overall_structure.md`):
+
+| part | protocol / theory | system / implementation | application / circuit |
+|---|---|---|---|
+| intro (incl. related work, contributions, overview) | ~25% | ~25% | ~25% |
+| preliminaries | ~12% | ~10% | ~10% |
+| construction | ~30% | ~25% (system design) | ~20% (circuit specification) |
+| security | ~20% (+ appendix proofs) | ~5% (concrete soundness, FS) | ~10% (circuit correctness, trust model) |
+| evaluation | ~8% | ~30% | ~30% |
 
 ## Workflow (used by the `writer` agent)
 
@@ -70,4 +81,6 @@ Toy papers used throughout (all numbers are **invented and illustrative**):
   [related-work-writing](../related-work-writing/SKILL.md),
   [experiments-writing](../experiments-writing/SKILL.md),
   [venue-calibration](../venue-calibration/SKILL.md), [polish-writing](../polish-writing/SKILL.md)
+- Not yet available (later batch): zk-definitions, piop-pcs-compile,
+  soundness-budget, circuit-audit <!-- TODO: link once skill exists -->.
 - LaTeX skeleton: `templates/paper/`.

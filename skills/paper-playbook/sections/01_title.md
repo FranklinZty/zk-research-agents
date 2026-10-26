@@ -7,16 +7,16 @@ second paragraph: both must name the same object.
 
 | pattern | shape | toy example (invented) |
 |---|---|---|
-| Object + effect | "<Object>: <effect> for <setting>" | "Packed Test Polynomials: Faster Programmable Bootstrapping for Small Lookup Tables" |
-| Framework + scope | "A <unified/graded> view of <problem>" | "A Unified Cost Model for Differential Trail Search in Small SPNs" |
-| Result as claim | "<Setting> with <quantity> <comparative>" | "Private Set Intersection with Sublinear Communication in the Smaller Set" |
-| Cryptanalysis | "<Attack type> of <target>" | "Six-Round Differential Distinguishers for ToySPN-64" |
-| "and Beyond" suffix | scope extender when a section generalises the core technique to neighbouring schemes | "... for TFHE and Beyond" |
+| Object + effect | "<Object>: <effect> for <setting>" | "ToyLookup: Lookup Arguments with Table-Independent Prover Cost" |
+| Framework + scope | "A <unified/graded> view of <problem>" | "A Unified View of Logarithmic-Derivative Lookups and Grand Products" |
+| Result as claim | "<Setting> with <quantity> <comparative>" | "FRI Proving with Memory Sublinear in the Trace Length" |
+| System name + mechanism | "<System>: <mechanism> for <workload>" | "ToyProver: Streaming Trace Commitment for Memory-Bounded STARK Proving" |
+| "and Beyond" suffix | scope extender when a section generalises the core technique to neighbouring schemes | "... for Plonkish Arithmetization and Beyond" |
 
 ## Rules
 
-1. **Name the structural idea, not the parameter.** A title about "order-k symmetry"
-   or "a 14-bit block" reads as a parameter tweak; a title about the mechanism
+1. **Name the structural idea, not the parameter.** A title about "folding factor 16"
+   or "a 2^16 table" reads as a parameter tweak; a title about the mechanism
    (packing, grading, batching) reads as a method.
 2. **Fit on two lines in the class's title font.** If one word spills onto its own
    line, rephrase (e.g. move a qualifier into a subtitle) rather than shrink fonts.
@@ -37,8 +37,9 @@ risk a reviewer might see. Discuss with the human author; they choose.
 
 ## Bad → better (toy)
 
-- Bad: "On the Efficient Evaluation of Look-Up Tables Using a Novel Packing Method in
-  TFHE-Like Fully Homomorphic Encryption Schemes over the Torus" (long, "novel",
-  "efficient", no claim).
-- Better: "Packed Test Polynomials: Faster Programmable Bootstrapping for Small
-  Lookup Tables".
+- Bad: "On the Efficient Design of a Novel Post-Quantum Lookup Argument for
+  Zero-Knowledge Succinct Non-Interactive Arguments of Knowledge over Plonkish
+  Arithmetizations" (long, "novel", "efficient", "post-quantum" unsupported, no claim).
+- Better: "ToyLookup: Lookup Arguments with Table-Independent Prover Cost".
+- Watch the words "SNARK", "zkSNARK", "post-quantum", "transparent": each is a
+  claim (succinctness, ZK, the assumption, the setup) the body must prove.

@@ -4,8 +4,9 @@ Full procedure: [related-work-writing](../../related-work-writing/SKILL.md).
 
 ## Organise by axis, not by time
 
-Place all prior work on one or two **axes** (e.g. "reduce the degree" vs "reduce the
-evaluation cost"; "reduce rounds" vs "reduce bandwidth"). A comparison table places
+Place all prior work on one or two **axes** (e.g. "reduce prover work" vs "reduce
+proof size"; "transparent" vs "trusted setup"; "table-size dependent" vs
+"preprocessed"). A comparison table places
 each work at a coordinate; the "Ours" row occupies the region no one else does. The
 section itself then argues "prior work sits on the boundary, we are in the interior".
 
@@ -39,8 +40,11 @@ section itself then argues "prior work sits on the boundary, we are in the inter
 - Judge prior work only by **factual limitations**: "they instantiate a single
   case, leaving open ...", "the required correction is assumed rather than shown to
   exist". Never "unfortunately", "fail to", "naive".
-- Give each prior work's cost in its concrete form (e.g. O(√(pe))) and verify it
-  against the original paper, not a secondary description.
+- Give each prior work's cost in its concrete form (e.g. O(N + m) field ops and an
+  MSM of size m) and its security notion and model, and verify both against the
+  original paper, not a secondary description.
+- ZK moves fast: cover ePrint, the major project repositories and design documents
+  (grey literature) with access dates, and mark concurrent work as such.
 - The "Ours" row equals, character for character, the formula in the abstract,
   contribution 3 and the body proposition.
 - Your own earlier papers appear in the third person and receive the same factual

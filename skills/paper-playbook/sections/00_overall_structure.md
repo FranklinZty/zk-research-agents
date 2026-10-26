@@ -13,26 +13,31 @@ Always check the current CFP for the actual limit and for what counts toward it.
 | 1.2 | Our Contributions | ~4% | lead-in + 3–4 ordered bullets |
 | 1.3 | Technique Overview | ~12–15% | recall prior routes → reduce to precise questions → insights → figure |
 | 1.4 | Organisation (optional) | 2–3 lines | only if the paper is long |
-| 2 | Preliminaries | ~12–18% | notation table; scheme recap; only what is reused later |
-| 3–5 | Main construction(s) | ~35% | theorem → construction → cost / selection rule → algorithm |
-| 6 | Security / correctness | varies | security claim, attack checklist, noise/failure analysis |
-| 7 | Implementation and evaluation | ~12–15% | baselines, platform, parameters, configurations, results, ablation, comparison |
+| 2 | Preliminaries | ~10–15% | notation table; relation, IOP/PIOP, PCS, Fiat–Shamir; only what is reused later |
+| 3–5 | Main construction(s) | ~30–35% | relation → PIOP (protocol box) → theorem → compilation → cost / selection rule |
+| 6 | Security | ~10–20% | completeness, knowledge soundness (extractor), zero knowledge (simulator), concrete soundness table |
+| 7 | Implementation and evaluation | ~12–15% | baselines, platform, parameters + soundness, timing scope, workloads, results, ablation, comparison |
 | 8 | Conclusion | ≤ 0.5 page | two to three sentences |
 | A– | Appendix | unlimited | proofs, extra tables, reproduction details |
 
 Variants:
 
-- **Symmetric design papers (ToSC/FSE):** security analysis is usually the largest
-  section (roughly a quarter to a third); a separate *Design rationale* section is
-  longer than the specification itself; related work may sit in a "state of the art"
-  subsection of the constraints section.
-- **Cryptanalysis papers:** the target's specification goes in §1 (e.g. §1.2), not in
-  its own section; the core distinguishing property gets its own section, the attack
-  another.
-- **Security conferences (CCS/S&P/USENIX/NDSS/PoPETs):** two-column formats; threat
-  model and system overview are expected early; evaluation carries more weight.
-- **Theory venues (TCC):** no experiments section; the technique overview often
-  becomes the main exposition.
+- **Protocol / theory papers (CRYPTO/EUROCRYPT/ASIACRYPT/TCC):** the security
+  section (proofs of knowledge soundness and ZK) is the largest after the
+  construction, often a quarter of the body plus the appendix; the evaluation, if
+  any, is short (cost table or a prototype); at TCC there is often no experiments
+  section and the technique overview becomes the main exposition.
+- **System / implementation papers (TCHES, CCS/S&P/USENIX):** the construction is the
+  system design (data flow, memory, kernels); security is mostly inherited and
+  shrinks to block D (concrete soundness) plus whatever the system changes
+  (Fiat–Shamir transcript, parameters); evaluation grows to ~25–30%.
+- **Application / circuit papers (CCS/S&P/USENIX/NDSS/PoPETs, FC/AFT):** two-column
+  formats; threat and trust model (who runs setup, who holds the witness, what is
+  public) and a system overview are expected early; a circuit specification section
+  (gadgets, arithmetization, constraint counts) and a circuit-correctness argument
+  replace most of the security section; evaluation carries more weight.
+- **SoK papers:** a methodology section and a systematisation table replace the
+  construction; evaluation compares systems at equal security on common statements.
 
 ## Page discipline
 

@@ -45,18 +45,22 @@ the body**. Full procedure: [technique-overview](../../technique-overview/SKILL.
 - The overview recalls prior routes; it does not repeat the related-work comparison.
 - Late in the process, fix only obvious errors in the overview; do not restyle it.
 
-## Toy skeleton (T1, PBS with LUT packing; illustrative)
+## Toy skeleton (T1, ToyLookup; illustrative)
 
-> **Recall.** A PBS rotates a test polynomial v(X) by the phase of an LWE sample; one
-> PBS evaluates one table f: Z_t → Z_t. Prior work evaluates k tables with k PBS, or
-> with one PBS of doubled ring degree [..], leaving open whether k small tables can
-> share one rotation at the original degree.
-> **Two questions.** (i) For which k can k tables be interleaved in one test
-> polynomial without overlapping windows? (ii) Can the k outputs be separated with
-> key switches only?
-> **Insight 1: Window width, not table count, bounds the packing factor.** ... giving
-> k ≤ N/(2 t w).
-> **Insight 2: Output separation is linear and therefore free of bootstrapping.** ...
+> **Recall.** A logarithmic-derivative lookup proves a ∈ t^m by checking
+> Σ_i 1/(γ + a_i) = Σ_j c_j/(γ + t_j) at a random γ, where c_j counts how often t_j
+> occurs in a. Prior work commits to the multiplicities c ∈ 𝔽^N, so the prover pays
+> O(N) even when m ≪ N [..]; alternatively it preprocesses the table per circuit
+> [..], leaving open whether the table can enter only through verifier-side
+> evaluations.
+> **Two questions.** (i) Can the right-hand sum be restricted to the support of c,
+> of size ≤ m, without revealing it? (ii) Can the verifier evaluate the table's
+> contribution in O(log N) for structured tables?
+> **Insight 1: The support of the multiplicities, not the table, bounds the prover's
+> commitments.** ... giving a prover cost of O(m) field operations plus one
+> commitment of size m.
+> **Insight 2: For structured tables the table side is a multilinear evaluation the
+> verifier computes itself.** ...
 
 ## Checklist
 
