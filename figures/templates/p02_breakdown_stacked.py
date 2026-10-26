@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""P02 -- runtime breakdown as horizontal stacked bars (instead of pies).
+"""P02 -- prover-time breakdown as horizontal stacked bars (instead of pies).
 
-Pattern: one row per method, one segment per pipeline stage, identical stage
-order and colour in every row; total at the bar end; a single bracket states the
-headline ratio.  Pies make cross-method comparison impossible -- use this.
-SYNTHETIC DATA.
+Pattern: one row per prover, one segment per proving phase (witness generation,
+commitment, sum-check / quotient, opening), identical phase order and colour in
+every row; total at the bar end; a single bracket states the headline ratio.
+The caption states the timing scope (here: witness generation included, setup and
+preprocessing excluded) and the common soundness level.  Pies make cross-method
+comparison impossible -- use this.  SYNTHETIC DATA.
 """
 import sys, pathlib
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -14,11 +16,11 @@ import numpy as np
 
 
 def make(venue="lncs", outdir=ROOT / "examples"):
-    stages = ["ModRaise", "CoeffToSlot", "EvalMod", "SlotToCoeff"]
+    stages = ["witness", "commit", "sum-check / quotient", "open"]
     methods = ["Baseline A", "Baseline B", "Ours"]
-    t = np.array([[0.4, 9.8, 6.1, 2.9],
-                  [0.4, 6.2, 5.8, 2.1],
-                  [0.4, 2.3, 4.2, 0.9]])     # seconds, synthetic
+    t = np.array([[1.1, 9.4, 5.6, 2.7],
+                  [1.1, 6.0, 5.9, 2.0],
+                  [1.1, 2.4, 4.1, 0.9]])     # seconds, synthetic
     fig, ax = P.figure(venue, width="full", aspect=0.30)
     y = np.arange(len(methods))[::-1]
     left = np.zeros(len(methods))
@@ -34,7 +36,7 @@ def make(venue="lncs", outdir=ROOT / "examples"):
     ax.text((left[0] + left[-1]) / 2, y[-1] - 0.5, f"{ratio:.1f}" + r"$\times$ faster", ha="center", va="top",
             fontsize="small", color=P.INK)
     ax.set_yticks(y, methods)
-    ax.set_xlabel("bootstrapping time (s)")
+    ax.set_xlabel("prover time (s), witness generation included")
     ax.set_xlim(0, left.max() * 1.12)
     ax.set_ylim(y[-1] - 0.95, y[0] + 0.5)
     ax.grid(axis="y", visible=False)

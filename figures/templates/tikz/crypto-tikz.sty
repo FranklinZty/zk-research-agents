@@ -19,7 +19,7 @@
 \definecolor{crmuted}{HTML}{8A8984}
 \definecolor{crgrid}{HTML}{E4E3DF}
 \definecolor{crtint}{HTML}{CDE2FB}  % light blue fill (message / highlight)
-\definecolor{crgrey}{HTML}{D3D2CC}  % noise / neutral fill
+\definecolor{crgrey}{HTML}{D3D2CC}  % neutral fill
 \definecolor{crneutral}{HTML}{F0EFEC}
 
 % --- styles --------------------------------------------------------------------
@@ -34,10 +34,6 @@
   msg/.style={->, draw=crink, line width=0.6pt},
   party/.style={font=\small\bfseries},
   wire/.style={draw=crink2, line width=0.4pt},
-  xorop/.style={circle, draw=crink2, inner sep=0pt, minimum size=3.2mm,
-                path picture={\draw[crink2] (path picture bounding box.north) -- (path picture bounding box.south)
-                (path picture bounding box.west) -- (path picture bounding box.east);}},
-  sbox/.style={draw=crink2, fill=crtint, minimum width=13mm, minimum height=6mm, font=\small},
   lpt/.style={circle, fill=crmuted, inner sep=0pt, minimum size=2.2pt},
   brace/.style={decorate, decoration={brace, amplitude=4pt, raise=1pt}, draw=crink2},
 }

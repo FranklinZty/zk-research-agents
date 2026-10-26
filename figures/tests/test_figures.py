@@ -40,6 +40,23 @@ def test_template_renders(script, tmp_path):
     assert paths and all(pathlib.Path(p).stat().st_size > 0 for p in paths)
 
 
+def test_catalog_references_exist():
+    # every template named in PATTERNS.md / README.md exists, and retired ones are gone
+    import re
+    names = set()
+    for doc in ("PATTERNS.md", "README.md"):
+        txt = (FIG / doc).read_text()
+        names |= set(re.findall(r"\b(p\d\d_[a-z_]+)(?:\.py)?\b", txt))
+        names |= {"tikz/" + m for m in re.findall(r"tikz/([a-z_]+)(?:\.tex)?\b", txt)}
+    assert names
+    for n in names:
+        path = FIG / "templates" / (n + ".tex" if n.startswith("tikz/") else n + ".py")
+        assert path.exists(), n
+    for retired in ("p06_noise_waterfall", "p07_modulus_layout", "p08_sbox_ddt_heatmap", "p09_trail_bounds"):
+        assert not (FIG / "templates" / f"{retired}.py").exists()
+    assert not (FIG / "templates" / "tikz" / "spn_round.tex").exists()
+
+
 def _neutral_stats():
     # empty drawing statistics, so only caption keywords decide the type
     return {"n_line": 0, "n_curve": 0, "n_rect": 0, "n_quad": 0, "n_paths": 0,

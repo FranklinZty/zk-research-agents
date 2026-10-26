@@ -58,7 +58,7 @@
 * `figures/templates/p01..p16` 和 `figures/templates/tikz/*`。
 * `figures/harvester/harvest.py` 与 `gallery.py`。
 * `lib/bench`（`crbench`）：表格生成，以及 C15/C16 用的 bootstrap 置信区间。
-* `lib/cryptomath`：DDT/LAT（C8）、噪声估计（C6、C10）、代价模型（C12）。
+* `lib/cryptomath`：误差/样本分布（C10）、代价模型（C12）。
 
 ## 交接约定
 一张图满足以下全部条件才算完成：

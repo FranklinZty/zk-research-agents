@@ -27,7 +27,7 @@ related work without copying any of them.
 * `paper/figs/src/<id>.py` or `<id>.tex`: the generator, which reads
   `results/` only.
 * `paper/figs/FIGURES.md`, one row per figure:
-  `| id | claim ID | pattern (C1..C16/D1..D6) | script | data files | EVIDENCE IDs | venue/width | status {draft,checked,final} |`
+  `| id | claim ID | pattern (C1..C16/D1..D7; C6–C9, D3 retired) | script | data files | EVIDENCE IDs | venue/width | status {draft,checked,final} |`
 * `paper/figs/NOTES.md`: patterns learned from harvesting, in words, citing
   public ePrint IDs only.
 * An update to `EVIDENCE.md`: add the figure id to the rows whose numbers it shows.
@@ -64,7 +64,7 @@ related work without copying any of them.
 * `figures/templates/p01..p16`, `figures/templates/tikz/*`.
 * `figures/harvester/harvest.py`, `gallery.py`.
 * `lib/bench` (`crbench`): table generator and bootstrap CIs for C15/C16.
-* `lib/cryptomath`: DDT/LAT (C8), noise estimators (C6, C10) and cost models (C12).
+* `lib/cryptomath`: error/sample distributions (C10) and cost models (C12).
 
 ## Hand-off contract
 A figure is **done** when all of the following hold:

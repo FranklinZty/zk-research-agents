@@ -1,6 +1,7 @@
-# Figure pattern catalog (crypto papers)
+# Figure pattern catalog (ZK papers)
 
-A catalog of figure patterns that recur in good cryptography papers, written
+A catalog of figure patterns that recur in good cryptography papers, adapted to
+zero-knowledge papers (protocol/theory, system/implementation, application/circuit), written
 **in words only** -- no harvested image is reproduced here. Each entry gives
 when to use it, its anatomy, the usual mistakes, and the template in this
 repo that implements it. Where a source is named, it is a public IACR ePrint
@@ -27,9 +28,16 @@ Main observations:
   number on every bar, and no run-to-run spread at all.
 * **Nobody shows run-to-run variance.** Showing it is a cheap way to look more
   rigorous than the baseline paper (see C15).
-* The corpus has few symmetric-key papers, so the symmetric patterns (C8, C9,
-  D3) follow community practice and the structure of standard cipher
-  specifications, not harvested examples.
+* **The corpus was not a ZK corpus.** The "see e.g." ePrint IDs below come from
+  it and illustrate the *visual* pattern only; the ZK use cases (prover-phase
+  breakdowns, P-time vs proof-size fronts, scaling in the number of constraints,
+  protocol boxes, PIOP-to-PCS compilation) follow community practice and have not
+  been re-harvested. Re-run the harvester on a ZK corpus before citing ZK examples
+  (needs verification).
+* **Retired IDs.** C6 (noise waterfall), C7 (modulus bit layout), C8 (S-box
+  heatmap), C9 (trail bounds) and D3 (cipher round function) were FHE/symmetric
+  patterns and have been removed. The IDs are not reused, so an old reference fails
+  loudly instead of pointing at a different figure.
 
 Conventions used by every template: `style/crypto.mplstyle` plus a venue
 sheet; ours = blue (`palette.OURS`), baselines = greys; each series also
@@ -41,8 +49,8 @@ in ink colours, never series colours.
 ## Chart patterns (matplotlib, `templates/pNN_*.py`)
 
 ### C1 Speed-up bars with a baseline = 1 line -- `p01_speedup_bars.py`
-* **Use when** several parameter sets or workloads are compared against one
-  reference implementation.
+* **Use when** several circuits, workloads or parameter sets are compared against
+  one reference prover, all at the same soundness level and timing scope.
 * **Anatomy:** the y-axis shows the ratio *baseline time / method time*. The
   reference is a horizontal rule at 1, labelled once; it is not a bar. Ours
   is the only saturated colour and other methods are grey. Only our bars get
@@ -53,10 +61,12 @@ in ink colours, never series colours.
   geometric mean). Changing the reference between panels. Labelling every
   bar.
 
-### C2 Stacked breakdown instead of a pie -- `p02_breakdown_stacked.py`
-* **Use when** the claim is "we shrank stage X". Examples: bootstrapping
-  stages, modulus bits consumed per stage, communication vs. computation.
-* **Anatomy:** one horizontal bar per method. Stages appear in the same
+### C2 Prover-time breakdown (stacked, instead of a pie) -- `p02_breakdown_stacked.py`
+* **Use when** the claim is "we shrank phase X" of the prover. Phases: witness
+  generation, commitment (MSM / NTT / Merkle hashing), sum-check or quotient
+  computation, opening (and recursion or wrapping as a separate segment if used).
+  Also for proof-size breakdowns (commitments, evaluations, Merkle paths).
+* **Anatomy:** one horizontal bar per prover. Phases appear in the same
   order and colour in every row, with a thin white gap between segments. The
   total goes at the bar end. One bracket or arrow states the headline
   ratio. See e.g. ePrint 2025/1532 (stacked latency bars with a ratio
@@ -64,19 +74,24 @@ in ink colours, never series colours.
   stacked bars).
 * **Pitfalls:** side-by-side pies. Readers cannot compare angles across pies,
   and totals disappear. More than 5 segments. Using a different stage order
-  in different rows.
+  in different rows. Leaving witness generation in one row and out of another;
+  the x-axis label or caption states the timing scope.
 
-### C3 Log-log scaling curve with asymptotic guides -- `p03_scaling_loglog.py`
-* **Use when** claiming an asymptotic improvement, or showing where a
-  constant factor stops mattering.
+### C3 Log-log scaling in the number of constraints -- `p03_scaling_loglog.py`
+* **Use when** claiming an asymptotic improvement (e.g. a linear-time prover vs.
+  an NTT-based one), or showing where a constant factor stops mattering, as a
+  function of the statement size (constraints, rows, cycles).
 * **Anatomy:** log2 axes with `2^k` tick labels and markers at measured points
-  only. Thin dashed grey guide lines (`O(n log n)`, `O(n^2)`) are anchored at
+  only. Thin dashed grey guide lines (`O(n)`, `O(n log n)`) are anchored at
   the first data point and labelled beside the line. Series are
   direct-labelled at their right end, so no legend is needed. See e.g. ePrint
   2026/845 (error growth vs. depth).
 * **Pitfalls:** a linear x-axis for powers of two. Guides that are not
   anchored, which suggest a false constant. Guide labels that collide with
-  series labels.
+  series labels. Constraint counts from different arithmetizations on one x-axis
+  (use the statement size, e.g. hash invocations, or one panel per system).
+  Stopping the sweep before the size where memory runs out; mark the last
+  feasible size instead.
 
 ### C4 Parameter-plane feasibility region -- `p04_param_feasibility.py`
 * **Use when** parameters are the contribution: choosing (n, log q), (h,
@@ -91,61 +106,18 @@ in ink colours, never series colours.
   curves drawn from a toy formula without saying so. Only the
   lattice-estimator output belongs in the final paper.
 
-### C5 Trade-off scatter with a Pareto front -- `p05_pareto_tradeoff.py`
-* **Use when** two costs trade off against each other (key size vs. latency,
-  bandwidth vs. rounds) and there is no single winner.
+### C5 Prover time vs. proof size, with a Pareto front -- `p05_pareto_tradeoff.py`
+* **Use when** two costs trade off against each other (prover time vs. proof
+  size across code rates, query counts, folding factors or PCS choices; proof size
+  vs. verifier time) and there is no single winner. Every point must be at the
+  same soundness level and regime; say so in the caption.
 * **Anatomy:** dominated points are grey. Non-dominated points are joined by a
   step line in the accent colour. A "better" arrow points to the good corner.
   At most 3-4 named points. Log axes if the ranges span decades.
 * **Pitfalls:** connecting all points in x-order. Labelling every point.
-  Leaving "lower is better" implicit.
-
-### C6 Noise-budget waterfall -- `p06_noise_waterfall.py`
-* **Use when** explaining depth or noise consumption across a circuit, or
-  motivating where a refresh (bootstrapping or modulus switching) goes.
-* **Anatomy:** x-axis = operations in execution order. Each floating bar is
-  one operation's cost, and thin connectors carry the running level. The zero
-  line is labelled "decryption fails". The refresh is the only rising bar and
-  uses the accent colour.
-* **Pitfalls:** plotting the remaining budget as a line only, which hides
-  per-operation cost. Omitting the failure threshold.
-
-### C7 Ciphertext / modulus bit-layout diagram -- `p07_modulus_layout.py` (or TikZ)
-* **Use when** explaining where message, gap and noise bits sit, and how a
-  transformation (ModRaise, EvalMod, rescaling, digit removal) moves them.
-  This is the most common explanatory figure in FHE bootstrapping papers.
-* **Anatomy:** 2-4 rows, one per ciphertext state. Each row is a bar whose
-  width stands for log q. A light tint marks message bits and grey marks
-  noise. Braces give the moduli (q, Delta, t). The operation name sits on a
-  vertical arrow between rows. See e.g. ePrint 2024/109 (functionality and
-  pipeline figures built from such bars) and 2026/233 (encoding "triangle"
-  vs. flattened layout).
-* **Pitfalls:** drawing widths to scale when they are not; say "not to
-  scale". Too many rows. Colour-only distinction between message and noise
-  (use hatching for noise if printing in B/W).
-
-### C8 S-box table heatmap (DDT / LAT / BCT) -- `p08_sbox_ddt_heatmap.py`
-* **Use when** presenting a small S-box's differential or linear properties,
-  or contrasting two S-boxes.
-* **Anatomy:** a 2^n x 2^n grid with hex tick labels, the input difference on
-  rows and the output difference on the columns (top). The ramp is a single
-  hue with 0 = white (DDT) or diverging with 0 = grey (LAT). Non-zero counts
-  are printed in dark or white ink, chosen by background lightness. The
-  uniformity, linearity or boomerang uniformity is stated.
-* **Pitfalls:** a rainbow colormap. Printing zeros. 8-bit S-boxes as a
-  256x256 heatmap with numbers (show the value histogram instead).
-
-### C9 Trail bound vs. rounds (security margin) -- `p09_trail_bounds.py`
-* **Use when** presenting MILP/SAT lower bounds on active S-boxes or trail
-  weight for a cipher design, or cryptanalysis reach vs. the full round
-  count.
-* **Anatomy:** step plot of weight (-log2 p) per round for differential
-  and linear trails. The security level is a horizontal rule. The first
-  crossing round is marked, and a double arrow labelled "margin: k rounds"
-  runs to the full round count. When some bounds are exact and others only
-  lower bounds, the two kinds are marked differently (filled vs. open markers).
-* **Pitfalls:** mixing exact optima and lower bounds without saying which is
-  which. Linear y-axis units that switch between probability and weight.
+  Leaving "lower is better" implicit. Mixing points at different security levels
+  (or proven and conjectured soundness) on one front. Dropping verifier time
+  silently; give it in the caption or a second panel.
 
 ### C10 Error distribution with log-scale tails -- `p10_error_distribution.py`
 * **Use when** justifying a decryption-failure or precision claim from
@@ -172,8 +144,8 @@ in ink colours, never series colours.
   error peaks.
 
 ### C12 Cost-model crossover -- `p12_crossover_cost.py`
-* **Use when** two algorithms win in different regimes (direct vs. BSGS,
-  schoolbook vs. NTT, packing strategy A vs. B).
+* **Use when** two algorithms win in different regimes (lookup vs. native
+  constraints, KZG vs. FRI-based PCS, schoolbook vs. NTT, MSM algorithm A vs. B).
 * **Anatomy:** analytic curves, measured points as markers (showing the model
   is calibrated), a vertical line at the crossover with its value printed,
   and very light regime tints labelled "X wins". See e.g. ePrint 2026/213
@@ -193,8 +165,8 @@ in ink colours, never series colours.
   matters.
 
 ### C14 Parameter-sweep heatmap with the optimum outlined -- `p14_param_sweep_heatmap.py`
-* **Use when** a tuning space has two discrete knobs (gadget digits x keys,
-  batch size x parties, BSGS split).
+* **Use when** a tuning space has two discrete knobs (folding factor x code rate,
+  columns x gate degree, MSM window x batch size).
 * **Anatomy:** a single-hue ramp whose colour-bar label states "lower is
   better". The value is printed in each cell with one decimal. Infeasible
   cells are hatched grey, not coloured. The optimum cell gets an accent
@@ -231,44 +203,39 @@ in ink colours, never series colours.
 
 ## Diagram patterns (TikZ, `templates/tikz/*.tex`, style `crypto-tikz.sty`)
 
-### D1 Protocol message flow / functionality box -- `tikz/protocol_flow.tex`
-* **Use when** presenting a two- or multi-party protocol, a security game or
-  an ideal functionality.
-* **Anatomy:** party names in bold on top, each party's local computation
-  left- or right-aligned in its own column, and messages as labelled
-  horizontal arrows in the middle, top to bottom. Round numbers go in muted
-  text on the margin. For ideal functionalities, use a framed box with a
+### D1 Protocol box: prover/verifier interaction -- `tikz/protocol_flow.tex`
+* **Use when** presenting an interactive proof, a PIOP or a compiled argument
+  (prover on the left, verifier on the right), a security game, or an ideal
+  functionality. In a paper body, cryptocode's `\pseudocode` gives the same layout
+  (`skills/paper-playbook/sections/08_main_construction.md`).
+* **Anatomy:** party names with their inputs in bold on top (𝒫(x; w), 𝒱(x)),
+  each party's local computation left- or right-aligned in its own column, and
+  messages as labelled horizontal arrows in the middle, top to bottom. Round
+  numbers go in muted text on the margin. Challenges are sampled explicitly
+  (ρ ←$ 𝕂). The verifier's checks are numbered so the proof can cite them, and the
+  accept condition is the last line. For ideal functionalities, use a framed box with a
   bold title such as "Functionality F_x" and numbered steps. See e.g. ePrint
   2025/1834 (functionality boxes for random sharings and coin tossing),
   2026/840 (simplified client-server sequence diagrams) and 2024/109 (the
   bootstrapping functionality as a figure).
 * **Pitfalls:** diagonal message arrows, which suggest timing that is not
   modelled. Mixing algorithm names in italic and sans serif (define
-  `\alg{}` once). Frames drawn with heavy rules.
+  `\alg{}` once). Frames drawn with heavy rules. Mixing oracles and commitments
+  in one box. Verifier checks written only in the prose below the box. A message
+  label that collides with the computation line above it.
 
-### D2 Pipeline / architecture of a multi-stage procedure -- `tikz/pipeline.tex`
-* **Use when** the contribution modifies one or two stages of a known pipeline
-  (bootstrapping, compiler lowering, PSI phases).
-* **Anatomy:** boxes left to right, joined by thin arrows. Levels or moduli
-  sit above the boxes on one baseline. The changed stage is tinted blue and
-  every other box stays white. A brace underneath quantifies the cost (depth
-  consumed, communication). See e.g. ePrint 2024/109 (previous vs. new
+### D2 Prover pipeline / architecture of a multi-stage procedure -- `tikz/pipeline.tex`
+* **Use when** the contribution modifies one or two phases of a known pipeline
+  (prover phases, circuit compilation and witness generation, recursion layers).
+* **Anatomy:** boxes left to right, joined by thin arrows. The quantity the paper
+  tracks (memory held, data size, field) sits above the boxes on one baseline.
+  The changed phase is tinted blue and every other box stays white. A brace
+  underneath quantifies the claim (peak memory, hashes, MSM size). See e.g. ePrint 2024/109 (previous vs. new
   pipeline, drawn as two figures with the same layout), 2025/1594 (steps
   that benefit are highlighted), 2025/1534 (a dotted separator per level) and
   2023/1304 (abstract "fat vs. thin" bootstrapping).
 * **Pitfalls:** clip-art icons. More than ~7 boxes in a row (wrap or group
   them). "Before" and "after" pipelines drawn with different layouts.
-
-### D3 Cipher round function (SPN / ARX / Feistel) -- `tikz/spn_round.tex`
-* **Use when** specifying a primitive or illustrating a trail.
-* **Anatomy:** a vertical data flow, with state bits as thin wires,
-  key addition as circled-plus nodes, S-boxes as tinted boxes and the
-  permutation as crossing wires. Layer names are right-aligned on the left
-  margin. For trails, active wires or S-boxes take the accent colour and
-  everything else stays grey.
-* **Pitfalls:** hand-drawn permutation wires (generate them with `\foreach`
-  from the permutation formula so the figure matches the spec). Colour as the
-  only marker of active S-boxes; add a fill pattern.
 
 ### D4 Lattice / geometric picture -- `tikz/lattice_basis.tex`
 * **Use when** building intuition for reduction, CVP/BDD decoding, rounding
@@ -290,10 +257,10 @@ in ink colours, never series colours.
 * **Pitfalls:** labels containing commas without braces (tikz-cd parse
   error). More than 3x3 nodes.
 
-### D6 Dependency grid / dataflow DAG (digit extraction, BSGS, NTT) -- adapt `tikz/pipeline.tex`
-* **Use when** a computation has a 2-D dependency structure. Examples: the
-  digit-extraction grid w_{i,j}, the Paterson-Stockmeyer recursion, and
-  butterfly networks.
+### D6 Dependency grid / dataflow DAG (NTT, sum-check, recursion) -- adapt `tikz/pipeline.tex`
+* **Use when** a computation has a 2-D dependency structure. Examples: NTT
+  butterfly networks, the variables bound per sum-check round, FRI folding
+  layers, a recursion or aggregation tree, digit-extraction grids.
 * **Anatomy:** a `matrix` of nodes, with arrows labelled by the polynomial
   or operation applied. The critical path is drawn in the accent colour, and
   axes name the two indices. See e.g. ePrint 2023/1304 and 2024/115 (digit
@@ -301,6 +268,22 @@ in ink colours, never series colours.
   2022/1364 (critical path of digit removal).
 * **Pitfalls:** unlabelled arrows. Mixing dashed and solid arrows without a
   legend.
+
+### D7 PIOP-to-PCS compilation pipeline -- `tikz/piop_compile.tex`
+* **Use when** the paper's construction follows the PIOP + PCS + Fiat--Shamir
+  route and the contribution sits in one step (a new PIOP, a new PCS, a new
+  compiler), or when the security section must show where each error term comes
+  from.
+* **Anatomy:** boxes left to right: relation, PIOP, interactive argument,
+  SNARK. Each arrow names the ingredient added (arithmetization, PCS,
+  Fiat--Shamir). Under each arrow, in muted text, the properties that step of the
+  compilation theorem needs (binding, extractability, evaluation binding, hiding;
+  round-by-round soundness and a complete transcript). The contributed step is
+  tinted blue. A brace states the error accounting
+  (κ ≤ ε_PIOP + ε_PCS + ε_FS).
+* **Pitfalls:** listing properties the proof never uses, or omitting one it does
+  (the figure becomes a checklist reviewers will hold you to). Drawing the
+  "before" and "after" constructions with different layouts.
 
 ---
 
@@ -320,4 +303,6 @@ in ink colours, never series colours.
 6. Every number in the figure has an EVIDENCE row (command, commit,
    machine), and the figure script path is recorded in the EVIDENCE entry.
 7. Synthetic or toy content is labelled as such in the caption.
-8. The caption states the take-away in its first sentence.
+8. Performance figures state the soundness level and regime and the timing
+   scope (witness generation, preprocessing, setup) in the caption.
+9. The caption states the take-away in its first sentence.

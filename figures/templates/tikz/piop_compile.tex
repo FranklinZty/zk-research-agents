@@ -1,0 +1,35 @@
+% Compilation pipeline: relation -> PIOP -> interactive argument -> SNARK.
+% Each arrow names the ingredient added and, below it, the properties the
+% compilation theorem needs; the stage the paper contributes is tinted (ours).
+% Toy labels; keep the same layout for "before" and "after" variants.
+\documentclass[border=3pt]{standalone}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb}
+\usepackage{crypto-tikz}
+\begin{document}
+\begin{tikzpicture}[node distance=4mm and 17mm]
+  \node[box] (rel) {Relation\\[-1pt]$\mathcal{R} = \{(x; w)\}$};
+  \node[ours, right=of rel] (piop) {PIOP\\[-1pt]{\footnotesize oracles, degree bounds}};
+  \node[box, right=of piop] (arg) {Argument\\[-1pt]{\footnotesize (interactive)}};
+  \node[box, right=of arg] (snark) {SNARK\\[-1pt]{\footnotesize (non-interactive)}};
+  \draw[flow] (rel) -- node[op, above] {arithmetize} (piop);
+  \draw[flow] (piop) -- node[op, above] {+ PCS} (arg);
+  \draw[flow] (arg) -- node[op, above] {+ FS} (snark);
+  % properties each compilation step needs, aligned on one baseline below the arrows
+  \coordinate (pr) at ($(rel.south)+(0,-3mm)$);
+  \coordinate (m0) at ($(rel.east)!0.5!(piop.west)$);
+  \coordinate (m1) at ($(piop.east)!0.5!(arg.west)$);
+  \coordinate (m2) at ($(arg.east)!0.5!(snark.west)$);
+  \node[op, align=center, anchor=north] at (m1 |- pr)
+    {binding, extractable,\\ eval.\ binding; hiding\\ for ZK};
+  \node[op, align=center, anchor=north] at (m2 |- pr)
+    {round-by-round\\ soundness; full\\ transcript hashed};
+  \node[op, align=center, anchor=north] at (m0 |- pr)
+    {same relation,\\ public inputs\\ fixed};
+  % soundness error accounting
+  \draw[brace, decoration={mirror}] ($(piop.south west)+(0,-19mm)$) -- node[op, below=5pt]
+        {$\kappa \le \varepsilon_{\mathrm{PIOP}} + \varepsilon_{\mathrm{PCS}} + \varepsilon_{\mathrm{FS}}$}
+        ($(snark.south east)+(0,-19mm)$);
+\end{tikzpicture}
+\end{document}

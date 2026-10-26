@@ -2,8 +2,8 @@
 
 ```
 style/        crypto.mplstyle + lncs/acm/ieee.mplstyle, palette.py (colours, sizes, save, CVD check)
-templates/    p01..p16 matplotlib templates (synthetic data) + run_all.py
-templates/tikz/  protocol_flow, pipeline, spn_round, lattice_basis, commutative_diagram
+templates/    p01..p05, p10..p16 matplotlib templates (synthetic data) + run_all.py
+templates/tikz/  protocol_flow, pipeline, piop_compile, lattice_basis, commutative_diagram
               + crypto-tikz.sty + Makefile
 examples/     rendered outputs of every template (PDF + PNG), committed; all ours
 harvester/    harvest.py (PDF corpus -> figure crops + index), gallery.py (HTML contact sheet)
@@ -52,7 +52,7 @@ figures/style/palette.py` to re-check the palette after any change.
 
 ```bash
 python3 figures/templates/run_all.py               # all p*.py -> figures/examples/
-python3 figures/templates/p04_param_feasibility.py --venue ieee --out /tmp/x
+python3 figures/templates/p05_pareto_tradeoff.py --venue ieee --out /tmp/x
 make -C figures/templates/tikz                     # TikZ -> figures/examples/tikz_*.{pdf,png}
 ```
 
@@ -63,14 +63,10 @@ template mapping and design notes are in `PATTERNS.md`.
 | id | template | pattern |
 |---|---|---|
 | C1 | p01_speedup_bars | speed-up bars, baseline = 1 line |
-| C2 | p02_breakdown_stacked | stacked stage breakdown (not pies) |
-| C3 | p03_scaling_loglog | log-log scaling with O(.) guides |
+| C2 | p02_breakdown_stacked | prover-time breakdown by phase (stacked, not pies) |
+| C3 | p03_scaling_loglog | log-log scaling in the number of constraints, O(.) guides |
 | C4 | p04_param_feasibility | parameter-plane feasibility region |
-| C5 | p05_pareto_tradeoff | Pareto front |
-| C6 | p06_noise_waterfall | noise-budget waterfall |
-| C7 | p07_modulus_layout | ciphertext / modulus bit layout |
-| C8 | p08_sbox_ddt_heatmap | DDT/LAT heatmap |
-| C9 | p09_trail_bounds | trail bound vs rounds, security margin |
+| C5 | p05_pareto_tradeoff | prover time vs proof size, Pareto front |
 | C10 | p10_error_distribution | error histogram, log tails, failure prob. |
 | C11 | p11_approx_error | approximation + log error |
 | C12 | p12_crossover_cost | cost-model crossover |
@@ -78,7 +74,13 @@ template mapping and design notes are in `PATTERNS.md`.
 | C14 | p14_param_sweep_heatmap | parameter sweep heatmap |
 | C15 | p15_bench_distribution | repeated-run A/B distributions |
 | C16 | p16_results_table | booktabs table, best bold |
-| D1-D5 | tikz/*.tex | protocol flow, pipeline, SPN round, lattice, commutative diagram |
+| D1 | tikz/protocol_flow | prover/verifier protocol box |
+| D2 | tikz/pipeline | prover pipeline, changed phase highlighted |
+| D4, D5 | tikz/lattice_basis, tikz/commutative_diagram | lattice picture, commutative diagram |
+| D7 | tikz/piop_compile | PIOP → PCS → Fiat–Shamir compilation pipeline |
+
+IDs C6–C9 and D3 (FHE/symmetric patterns) are retired and not reused; see
+`PATTERNS.md`.
 
 ## 3. Harvester (learn from published figures, locally)
 

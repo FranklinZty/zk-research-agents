@@ -1,29 +1,39 @@
-% Two-party protocol message flow (house style).  Toy protocol: outsourced
-% homomorphic evaluation.  Columns: party computations on the sides,
-% messages as labelled horizontal arrows in the middle, rounds top-to-bottom.
+% Prover/verifier protocol box (house style).  Toy protocol: prove that a
+% committed polynomial f vanishes on a domain H via its quotient q = f / Z_H.  Columns: prover computation on the left,
+% verifier on the right, messages as labelled horizontal arrows in the middle,
+% rounds top-to-bottom, verifier checks numbered so a proof can cite them.
+% For a paper body, cryptocode's \pseudocode gives the same layout
+% (skills/paper-playbook/sections/08_main_construction.md).
 \documentclass[border=3pt]{standalone}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}   % LNCS; for ACM/IEEE use \usepackage{newtxtext,newtxmath}
-\usepackage{amsmath}
+\usepackage{amsmath,amssymb}
 \usepackage{crypto-tikz}
 \newcommand{\alg}[1]{\mathsf{#1}}
 \begin{document}
 \begin{tikzpicture}[x=1cm,y=-0.62cm]
-  \node[party] at (0,0) {Client$(x)$};
-  \node[party] at (8,0) {Server$(f)$};
-  \draw[crgrid, line width=0.4pt] (-1.4,0.55) -- (9.4,0.55);
-  % round 1
-  \node[anchor=west] at (-1.4,1.4) {$(\mathit{pk},\mathit{sk},\mathit{evk}) \gets \alg{KeyGen}(1^\lambda)$};
-  \node[anchor=west] at (-1.4,2.3) {$c \gets \alg{Enc}_{\mathit{pk}}(x)$};
-  \draw[msg] (2.2,3.2) -- node[above, font=\footnotesize] {$c,\ \mathit{evk}$} (5.8,3.2);
-  % round 2
-  \node[anchor=east] at (9.4,4.1) {$c' \gets \alg{Eval}_{\mathit{evk}}(f, c)$};
-  \draw[msg] (5.8,5.0) -- node[above, font=\footnotesize] {$c'$} (2.2,5.0);
-  % output
-  \node[anchor=west] at (-1.4,5.9) {$y \gets \alg{Dec}_{\mathit{sk}}(c')$};
-  \node[anchor=west, text=crink2, font=\footnotesize] at (-1.4,6.8) {output $y = f(x)$};
+  \node[party] at (0,0) {Prover $\mathcal{P}(x; w)$};
+  \node[party] at (8,0) {Verifier $\mathcal{V}(x)$};
+  \draw[crgrid, line width=0.4pt] (-1.6,0.55) -- (9.6,0.55);
+  % round 1: commitment
+  \node[anchor=west] at (-1.6,1.4) {$f \gets \alg{Encode}(x, w),\ q \gets f / Z_H$};
+  \node[anchor=west] at (-1.6,2.3) {$C_f \gets \alg{Com}(f),\ C_q \gets \alg{Com}(q)$};
+  \draw[msg] (2.2,3.5) -- node[above, font=\footnotesize] {$C_f,\ C_q$} (5.8,3.5);
+  % round 2: challenge
+  \node[anchor=east] at (9.6,4.4) {$\rho \xleftarrow{\$} \mathbb{K}$};
+  \draw[msg] (5.8,5.3) -- node[above, font=\footnotesize] {$\rho$} (2.2,5.3);
+  % round 3: evaluations and opening proof
+  \node[anchor=west] at (-1.6,6.2) {$y_f \gets f(\rho),\ y_q \gets q(\rho)$};
+  \node[anchor=west] at (-1.6,7.1) {$\pi \gets \alg{Open}(f, q; \rho)$};
+  \draw[msg] (2.2,8.3) -- node[above, font=\footnotesize] {$y_f,\ y_q,\ \pi$} (5.8,8.3);
+  % checks, numbered so the proof can cite them
+  \node[anchor=east] at (9.6,9.2) {(1)\ $\alg{Vrfy}(C_f, C_q; \rho, y_f, y_q, \pi) = 1$};
+  \node[anchor=east] at (9.6,10.1) {(2)\ $y_f = Z_H(\rho)\, y_q$};
+  \node[anchor=east, text=crink2, font=\footnotesize] at (9.6,11.0) {accept iff (1) and (2)};
   % round markers
-  \foreach \y/\r in {3.2/1, 5.0/2}
-    \node[op, anchor=east] at (9.4,\y) {round \r};
+  \foreach \y/\r in {3.5/1, 5.3/2, 8.3/3}
+    \node[op, anchor=west] at (-1.6,\y) {round \r};
+  % frame
+  \draw[crink2, line width=0.4pt, rounded corners=1.5pt] (-1.8,-0.7) rectangle (9.8,11.6);
 \end{tikzpicture}
 \end{document}

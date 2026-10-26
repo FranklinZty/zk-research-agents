@@ -1,12 +1,12 @@
 ---
 name: paper-figures
-description: Produce publication-quality figures for a cryptography paper in the house style (LNCS/ACM/IEEE sizes, Computer Modern or Times fonts, vector PDF, colour-blind-safe palette), starting from the pattern catalog and templates in figures/. Use when a paper needs a plot, a results table or a TikZ diagram, or when auditing existing figures before submission.
+description: Produce publication-quality figures for a ZK paper (prover-phase breakdowns, prover time vs proof size fronts, scaling in the number of constraints, protocol boxes, PIOP-to-PCS compilation diagrams) in the house style (LNCS/ACM/IEEE sizes, Computer Modern or Times fonts, vector PDF, colour-blind-safe palette), starting from the pattern catalog and templates in figures/. Use when a paper needs a plot, a results table or a TikZ diagram, or when auditing existing figures before submission.
 ---
 # paper-figures
 
 Make every figure **at final size, in vector, from logged data, with a stated
 take-away**. The toolkit lives in `figures/`: style sheets, `palette.py`,
-16 matplotlib templates, 5 TikZ templates and `PATTERNS.md`.
+12 matplotlib templates, 5 TikZ templates and `PATTERNS.md`.
 
 ## When to use
 * Phase P7 (Writing + Figures): turning `results/` and EVIDENCE rows into figures.
@@ -19,23 +19,25 @@ take-away**. The toolkit lives in `figures/`: style sheets, `palette.py`,
    It becomes the first sentence of the caption. If no claim exists, the
    answer is probably a table (C16) or no figure at all.
 2. **Pick the pattern** from `figures/PATTERNS.md`:
-   * ratio vs. a reference → C1
-   * where the time goes → C2
-   * asymptotics → C3
-   * parameters → C4 or C14
-   * two competing costs → C5
-   * noise or depth → C6 or C7
-   * S-box properties → C8
-   * rounds and security margin → C9
-   * failure probability → C10
+   * ratio vs. a reference prover → C1
+   * where the prover time goes (witness / commit / sum-check or quotient / open) → C2
+   * scaling in the number of constraints, asymptotics → C3
+   * parameters (rate × queries, columns × degree) → C4 or C14
+   * prover time vs. proof size (or proof size vs. verifier time) → C5
+   * empirical distributions with tails → C10
    * approximation quality → C11
-   * regime change → C12
-   * linear-transform structure → C13
+   * regime change (lookup vs. native, PCS A vs. B) → C12
+   * linear-transform structure (NTT butterflies) → C13
    * a speed-up claim a sceptic may doubt → add C15
-   * a protocol or pipeline → D1 or D2
+   * the main comparison → C16 (a table)
+   * a P/V protocol → D1; a prover pipeline → D2; NTT / sum-check / recursion
+     dataflow → D6; PIOP → PCS → Fiat–Shamir compilation → D7
 3. **Copy the template** (`figures/templates/pNN_*.py` or `tikz/*.tex`) into
    the project's `paper/figs/src/`. Replace the synthetic arrays with loaders
    that read `results/*.csv|json`. Never type numbers by hand.
+   Performance figures compare systems only at the same soundness level and
+   regime (proven or conjectured) and the same timing scope; the caption says
+   both (see `skills/baseline-pin`).
 4. **Size and font by venue.** Call `P.figure(venue, width="column"|"full"|fraction, aspect=...)`.
    * LNCS: 4.80 in (12.2 cm), Computer Modern.
    * ACM: 3.33 / 7.00 in, Libertine or STIX.
@@ -69,6 +71,7 @@ take-away**. The toolkit lives in `figures/`: style sheets, `palette.py`,
 - [ ] Readable in greyscale and by colour-blind readers. The palette passes `python3 figures/style/palette.py`.
 - [ ] No pies, no 3-D, no rainbow colormaps, no coloured plot backgrounds, no titles inside the axes that duplicate the caption.
 - [ ] Every number traces to EVIDENCE, and synthetic or toy content is labelled as such.
+- [ ] Performance figures state the soundness level and regime and the timing scope; P time, V time and proof size are not cherry-picked (the ones not plotted are in the caption or a table).
 - [ ] The caption's first sentence is the take-away, and it defines all abbreviations.
 - [ ] Tables use booktabs, mark the best value in bold, and use consistent decimals.
 
@@ -77,9 +80,13 @@ take-away**. The toolkit lives in `figures/`: style sheets, `palette.py`,
 * `figures/templates/run_all.py` renders every template, which is useful as a smoke test after style edits.
 * `make -C figures/templates/tikz` builds the TikZ diagrams. `crypto-tikz.sty` can be `\usepackage`d in a paper.
 
-## Anti-patterns seen in published crypto papers (in the harvested corpus)
+## Anti-patterns seen in published crypto papers (in the harvested corpus, and common in ZK papers)
 * Pie charts used for stage breakdowns. Use C2 instead.
 * Coloured plot backgrounds, bold sans-serif titles inside the axes, and default-library colours.
 * Raster screenshots of plots that print at under 150 dpi.
 * Speed-up claims shown without any run-to-run spread. Add C15.
 * "Before" and "after" pipelines drawn with different layouts. Keep the layout identical and tint only the changed stage.
+* Prover-time bars where one system includes witness generation and another does not.
+* One Pareto front mixing configurations at different security levels, or proven with conjectured soundness.
+* Constraint counts from different arithmetizations on one axis, as if they were one unit.
+* A protocol box whose verifier checks differ from the ones the proof cites.
