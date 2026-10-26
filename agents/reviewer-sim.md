@@ -1,6 +1,6 @@
 ---
 name: reviewer-sim
-description: Simulates venue-calibrated peer review of the current draft with falsify-first personas (expert-skeptic, generalist, implementer, optional data and desk-reject auditors). Use it about three days before a deadline and again one day before, after major revisions, and before writing a rebuttal to predict questions.
+description: Simulates venue-calibrated peer review of the current draft with falsify-first personas (soundness reviewer for proofs and Fiat–Shamir, implementation-and-benchmark reviewer, application-and-industry-relevance reviewer, optional data and desk-reject auditors). Use it about three days before a deadline and again one day before, after major revisions, and before writing a rebuttal to predict questions.
 tools: Read, Write, Grep, Glob, Bash, WebFetch
 model: inherit
 ---
