@@ -39,7 +39,8 @@ cheaply and be filed as negative results.
 ## Procedure — the loop, with a toy mini-example per step
 
 Full method, gates and anti-patterns: [idea-mining-loop](../skills/idea-mining-loop/SKILL.md). Runnable end-to-end
-toy: `python3 skills/idea-mining-loop/scripts/toy_mining_demo.py`.
+toy (FRI folding factor × rate sweep on a toy cost model: outlier, two controls, simulation check, lower bound):
+`python3 skills/idea-mining-loop/scripts/toy_mining_demo.py`.
 
 0. **Pre-gate + probe target.** Classify the object: security-bearing (public map, trapdoor/sampler output,
    anything adversary-visible that must look random) → exclude structurally; substrate → continue. State the metric.
@@ -51,27 +52,30 @@ toy: `python3 skills/idea-mining-loop/scripts/toy_mining_demo.py`.
 2. **Representation tricks.** For each neighbouring paper write one line: "it turned X from fixed into free".
    *Toy (ZK):* "this work makes the FRI folding factor a parameter instead of 2"; "that one moves the evaluation
    domain from a multiplicative subgroup to a coset".
-   **Gate A:** name the habit-fixed parameter. *Toy (symmetric):* "every lightweight design uses S-box exponent 3
-   or the inverse; nobody sweeps e".
+   **Gate A:** name the habit-fixed parameter. *Toy (ZK):* "every implementation folds by the same k in every round;
+   nobody varies the schedule".
 3. **Parametrise + sweep wide.** CLI parameter, range wider than intuition, cheap proxy, JSON output.
-   *Toy (symmetric):* sweep all exponents e (one per cyclotomic class) over GF(2^n), proxy = differential uniformity δ.
+   *Toy (ZK):* sweep k ∈ {2,…,128} × rate ∈ {1/2,…,1/32} at a fixed toy soundness target, proxy = proof size ×
+   verifier work.
 4. **Exact synthesis + independent re-verification.** Solver/exhaustive optimum on survivors; re-check every model
-   with separate code. *Toy (symmetric/SAT):* encode "min #non-linear ops to evaluate x^e" as a shortest addition
-   chain with free squarings; re-verify the returned chain by direct evaluation.
-   **Gate B:** an outlier, not a maximum. *Toy:* δ = 2 for a handful of exponents while the bulk sits at 6–30.
-5. **Algebraic root cause.** Turn the outlier into "anomaly ⟺ P" with code. *Toy:* outliers are e ≡ 2^k+1
-   (up to cyclotomic shift); conjecture δ(x^(2^k+1)) = 2^gcd(k,n).
-6. **Control experiment (never skip).** Same surface feature, different algebra. *Toy:* e = 2^3+1 over GF(2^9)
-   also has Hamming weight 2 but gcd(3,9)=3 → δ = 8; the naive "weight-2 exponents are good" dies, P survives.
+   with separate code. *Toy (ZK):* the grid is small enough to enumerate exhaustively; re-verify the
+   closed-form proof size by directly simulating the opened Merkle nodes.
+   **Gate B:** an outlier, not a maximum. *Toy:* at degree 2^20, k = 64 sits far above the convex trend along k at
+   every rate.
+5. **Algebraic root cause.** Turn the outlier into "anomaly ⟺ P" with code. *Toy:* outliers occur only where log2 k ∤ log2 d,
+   because uniform arity pads the degree up to k^⌈log_k d⌉ (×16 for k = 64 at d = 2^20).
+6. **Control experiment (never skip).** Same surface feature, different algebra. *Toy:* keep k = 64 (same leaf width) but let
+   the last round fold by the remainder, or move to d = 2^24 where 6 | 24: the outlier vanishes, so the naive "k = 64
+   is just too wide" dies and the padding explanation survives.
    *Toy (lattice):* a BKZ schedule that looks good because it spends more total time — control: same total time,
    plain schedule.
 7. **Real-system validation.** Real library/protocol, same flags, interleaved repeats, control candidate included,
-   component + end-to-end, absolute + relative. *Toy (PQC/MPC):* the chosen S-box in an MPC-friendly cipher: same
-   δ as the inverse map but 1 non-linear multiplication instead of n−2 → measure AND-count/rounds in an MPC
-   framework, not only the formula. *Toy (PQC):* a smaller rejection bound must be re-measured for acceptance rate
+   component + end-to-end, absolute + relative. *Toy (ZK):* the closed form over-counts shared Merkle nodes; check that
+   the ranking survives a de-duplicated simulation, then measure in a real prover with every proof verified, and
+   report the price (a lower rate multiplies the prover's domain). *Toy (PQC):* a smaller rejection bound must be re-measured for acceptance rate
    *and* re-checked for independence of the output from the secret (pre-gate object).
-8. **Generalise + lower bound.** Family (all k, all n) and a bound: *toy:* in characteristic 2 solutions of
-   F(x+a)+F(x)=b come in pairs, so δ ≥ 2 — APN exponents are optimal. *Toy (MPC/PSI):* communication of a
+8. **Generalise + lower bound.** Family (all k, all n) and a bound: *toy:* mixed arity removes the outliers for every
+   d = 2^16…2^24, and the best point is within a few percent of a continuous relaxation (fractional rounds). *Toy (MPC/PSI):* communication of a
    PSI variant vs an information-theoretic lower bound for the same output; state which problem variant (decision
    vs recovery) the bound covers.
 
