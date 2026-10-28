@@ -32,6 +32,23 @@ definition rather than derived. The paper may then claim only "the PIOP soundnes
 bound is machine-checked relative to the oracle model". It may **not** claim "the
 SNARK is machine-checked".
 
+### Candidates taken from the reference books
+
+The books state some definitions and results precisely enough to formalise directly, with explicit error
+expressions. Formalise *our own statement* of them (in our notation, from our THEORY.md), citing the book as the
+reference version; never transcribe the book's text into Lean comments.
+
+| candidate | reference version | why it is a good target | relation to ArkLib |
+|---|---|---|---|
+| binding of a hash commitment and of Merkle commitments, in the random-oracle experiment, with the t²/2^{λ+1}-type bound | [CY24 §Binding, lemma:cm-binding, lemma:mt-binding]; collision bound [CY24 §Collision resistance, lemma:rom-cr] | a finite counting argument over lazily sampled oracle answers; the bound is an exact expression | ArkLib lists Merkle-tree work (needs verification: whether binding with this bound is already proved) |
+| adaptive vs non-adaptive soundness of a NARG, as definitions | [CY24 §Non-interactive arguments, definition:narg-nonadaptive-soundness, definition:narg-adaptive-soundness] | definitions only, but they fix what every later theorem quantifies over | needs verification: ArkLib's security definitions for non-interactive reductions |
+| FS soundness for Σ-protocols, (t+1)·ε | [CY24 §Adaptive soundness, theorem:narg-from-sp-adaptive-soundness] | smallest complete FS theorem; one-round, explicit bound | ArkLib states Fiat–Shamir for its reductions (needs verification: which bound and which input notion) |
+| RBR soundness implies SR soundness, (t+k)·ε_rbr | [CY24 §RBR soundness implies SR soundness, theorem:rbr-soundness-to-sr-soundness] | the step every multi-round FS argument of ours uses; purely information-theoretic | needs verification |
+| Schwartz–Zippel and sum-check soundness | [Thaler §3.4, Schwartz-Zippel Lemma]; [Thaler §4.1, The Sum-Check Protocol] | the algebraic core already listed above; Mathlib has a Schwartz–Zippel statement | ArkLib has sum-check work (README, checked 2026-10) |
+
+Model limits stay as above: these are statements in the pure ROM (CY24) or information-theoretic (Thaler's
+sum-check); the paper may claim "machine-checked in the random-oracle model", not more.
+
 ### Boundary with circuit verification
 
 Proving that a **circuit** (R1CS, Plonkish, AIR) correctly and uniquely constrains a
