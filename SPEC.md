@@ -25,7 +25,7 @@ It is the single source of truth for names, formats and hand-off contracts.
 
 ```
 .claude-plugin/plugin.json   Claude Code plugin manifest
-agents/<name>.md             12 subagent definitions (Claude Code format)
+agents/<name>.md             13 subagent definitions (Claude Code format)
 skills/<name>/SKILL.md       reusable skills (+ optional scripts/, references/)
 commands/<name>.md           slash commands that kick off workflows
 workflows/                   phase playbooks + Workflow-tool scripts (*.js)
@@ -42,22 +42,27 @@ CLAUDE.md                    Claude Code entry point
 install.sh                   installs agents/skills/commands into a target project
 ```
 
-## 2. The 12 agents (file = `agents/<id>.md`)
+## 2. The 13 agents (file = `agents/<id>.md`)
 
 | id | role | owns blackboard file(s) |
 |---|---|---|
-| `pi-orchestrator` | phase gates, task dispatch, conflict arbitration | `STATE.md`, `DECISIONS.md` |
-| `lit-scout` | search, related-work matrix, reading notes, **bib verification** | `LITERATURE.md`, `refs.bib` |
-| `math-librarian` | textbook TOC index → "which book/chapter proves X" | `MATH-REFS.md` |
-| `idea-miner` | 8-step idea mining loop | `IDEAS.md` |
-| `theorist` | proofs, Sage/Mathematica checks, Lean4 formalisation, parameter/security estimation | `THEORY.md`, `lean/` |
-| `baseline-engineer` | fetch/pin/build baselines, recipes | `baselines/MANIFEST.md` |
-| `experimenter` | bench protocol, logs → tables, evidence ledger | `EVIDENCE.md`, `results/` |
-| `falsifier` | red team: tries to refute every claim; veto power | `CLAIMS.md` (verdict column) |
+| `pi-orchestrator` | phase gates, task dispatch, conflict arbitration; no builder or proposer judges its own claims | `STATE.md`, `DECISIONS.md` |
+| `lit-scout` | search (incl. grey literature), related-work matrix, reading notes, concurrent-work watch, **bib verification**; "where is X proved?" from the reference books and textbook index; maintains `references/books/` | `LITERATURE.md`, `refs.bib`, `MATH-REFS.md` |
+| `idea-miner` | 8-step idea mining loop with ZK cost proxies | `IDEAS.md` |
+| `theorist` | notions and model, PIOP + PCS compilation, proofs, soundness budget, Sage checks, Lean4 formalisation | `THEORY.md`, `lean/` |
+| `prover-engineer` | our prover/verifier implementation; cost prediction; FS transcript self-audit | `impl/` |
+| `circuit-engineer` | our circuits; constraint counts; circuit self-audit | `circuits/`, `CIRCUITS.md` |
+| `baseline-engineer` | fetch/pin/build baselines, recipes, equal-level sign-off | `baselines/MANIFEST.md` |
+| `experimenter` | bench protocol, logs → tables, evidence ledger; measures only | `EVIDENCE.md`, `results/` |
+| `falsifier` | red team: tries to refute every claim; independent soundness budget and FS/circuit audits; veto power | `CLAIMS.md` (verdict column) |
 | `writer` | section-by-section writing via playbook | `paper/` |
 | `figure-artist` | figures in house style, harvest good figure patterns | `paper/figs/` |
-| `reviewer-sim` | venue-calibrated mock review | `REVIEWS.md` |
+| `reviewer-sim` | venue-calibrated mock review (ZK reviewer personas) | `REVIEWS.md` |
 | `submission-rebuttal` | checklist, anonymisation, artifact, rebuttal, camera-ready | `SUBMISSION.md` |
+
+A protocol/theory project may run without `prover-engineer` and `circuit-engineer` (11 agents).
+Builders (`theorist` for its budget, `prover-engineer`, `circuit-engineer`) self-check; only `falsifier`
+gives verdicts.
 
 Agent file format (Claude Code subagent):
 
@@ -86,7 +91,13 @@ model: inherit
 - `EVIDENCE.md` — table: `ID | number/fact as printed in paper | command | log path | commit | machine | date | runs/median`.
   Rule: **no number enters the paper without an EVIDENCE row.**
 - `DECISIONS.md` — dated go/no-go decisions with rationale.
-- `IDEAS.md`, `LITERATURE.md`, `MATH-REFS.md`, `THEORY.md`, `REVIEWS.md`, `SUBMISSION.md`.
+- `THEORY.md` — per-result statements (notion, model, proof status, Lean), the assumption ledger, and
+  "Parameters and security": one soundness-budget table per parameter set,
+  `term | bound ε_i(t) | bits at t = 2^s | proven / conjectured / heuristic | source | EVIDENCE`, with the level
+  definition (worst-case or average-case) named, a union-bound total in bits, and conjectured terms kept apart.
+- `CIRCUITS.md` — `circuit | arithmetization / backend | constraints or rows (used / padded) | columns | max degree | nonzeros | lookups | EVIDENCE | audit`;
+  counts from compiler output, audit cell `none | builder PASS|FAIL <commit> | falsifier PASS|FAIL <commit>`.
+- `IDEAS.md`, `LITERATURE.md`, `MATH-REFS.md`, `REVIEWS.md`, `SUBMISSION.md`.
 
 ## 4. Phases (workflow)
 
