@@ -4,7 +4,7 @@ Every ZK construction needs the same four blocks, in this order. Theory papers p
 full proofs here (or in the appendix with a body sketch); system and application
 papers built on an existing proof system may cite its theorems, but still give block
 D for **their** parameters. Before writing, freeze the definitions and the
-assumption ledger with zk-definitions <!-- TODO: link once skill exists -->, so the
+assumption ledger with [zk-definitions](../../zk-definitions/SKILL.md), so the
 model and notions here match §2 exactly.
 
 ## A. Completeness
@@ -73,8 +73,8 @@ model and notions here match §2 exactly.
 ## D. Concrete soundness table
 
 Every parameter set used anywhere in the paper appears as a row. Generate the table
-from the soundness calculator output (soundness-budget
-<!-- TODO: link once skill exists -->), with an EVIDENCE row per number.
+from the soundness calculator output
+([soundness-budget](../../soundness-budget/SKILL.md)), with an EVIDENCE row per number.
 
 ```latex
 \begin{table}[t]\centering\scriptsize

@@ -83,7 +83,7 @@ project's own `bench`/`profiling` profile) and say which.
       default named "100-bit" or "128-bit" can rest on a conjectured proximity bound,
       or on a curve whose real security is below the label; if the paper's speed-up
       used different parameters from the library default, the denominator changed.
-      Recompute the level with soundness-budget <!-- TODO: link once skill exists -->.
+      Recompute the level with [soundness-budget](../soundness-budget/SKILL.md).
 - [ ] The **statement** is the same: the same computation (e.g. the same hash over
       the same input length, the same VM program), not merely a circuit of the "same
       size". Record each system's own constraint/row/cycle count from its compiler or
@@ -107,7 +107,7 @@ Add a "Practical build priority" list: which baseline to reproduce first, and wh
 ## 6. Fairness checklist (sign off before handing to `experimenter`)
 
 - [ ] **Same security bits, same regime.** Both arms reach the same number of bits,
-      computed the same way (soundness-budget <!-- TODO: link once skill exists -->),
+      computed the same way ([soundness-budget](../soundness-budget/SKILL.md)),
       and both are provable or both conjectured. If not, re-parameterise the baseline
       and report both its default and the matched configuration. Curves count too:
       a pairing curve's real security can sit below its nominal label.

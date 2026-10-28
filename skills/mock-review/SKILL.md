@@ -92,11 +92,11 @@ subjective band with conditions (not a statistic) | top preparation items for re
 | category | catch | prevention |
 |---|---|---|
 | anonymity | footnote URL to a personal code host account, or an author name in `Cargo.toml` / `package.json` | anonymous mirror only; run `anonymize-check` |
-| soundness | "argument of knowledge" claimed, only soundness proven (no extractor) | prove knowledge soundness or weaken the claim; zk-definitions <!-- TODO: link once skill exists --> |
+| soundness | "argument of knowledge" claimed, only soundness proven (no extractor) | prove knowledge soundness or weaken the claim; [zk-definitions](../zk-definitions/SKILL.md) |
 | soundness | HVZK proven, ZK claimed; PCS openings or FRI queries leak evaluations the simulator does not produce | count revealed evaluations; size the masking; state the notion precisely |
 | soundness | headline security uses a conjectured proximity bound without saying so | proven and conjectured columns in the soundness table; abstract names the regime |
-| soundness | Fiat–Shamir transcript omits the statement, public inputs or a commitment; multi-round loss ignored | list the transcript explicitly; fiat-shamir-audit <!-- TODO: link once skill exists --> |
-| soundness | challenge sampled from the base field where the bound needs the extension | use |𝕂| in every algebraic term; recompute with soundness-budget <!-- TODO: link once skill exists --> |
+| soundness | Fiat–Shamir transcript omits the statement, public inputs or a commitment; multi-round loss ignored | list the transcript explicitly; [fiat-shamir-audit](../fiat-shamir-audit/SKILL.md) |
+| soundness | challenge sampled from the base field where the bound needs the extension | use |𝕂| in every algebraic term; recompute with [soundness-budget](../soundness-budget/SKILL.md) |
 | theory | body formula differs from appendix formula | copy from the proof source, never retype |
 | theory | theorem hypothesis (field size, rate, degree bound) excludes some of the paper's own parameter sets | run the parameter table through each theorem |
 | theory | completeness fails at an edge case (challenge equal to a table entry, padding row, empty table) | exhaustive check over a small field (`skills/sage-check`) |

@@ -37,7 +37,7 @@ falsifiable rows (status `open`) · [ ] novelty re-check for the chosen idea.
 
 **P3 Theory** — [ ] each theorem stated with all hypotheses (soundness notion, model, setup) · [ ] numerically
 checked (Sage/Python) on small cases · [ ] load-bearing lemmas formalised or independently re-derived ·
-[ ] soundness budget table (soundness-budget <!-- TODO: link once skill exists -->): every term with its bits, each
+[ ] soundness budget table ([soundness-budget](../soundness-budget/SKILL.md)): every term with its bits, each
 marked **proven** or **conjectured**, total reproduced by the falsifier · [ ] lower bound or explicit "no bound known".
 
 **P4 Baselines** — [ ] each competitor pinned (url, commit/tag, build recipe) in `baselines/MANIFEST.md` ·
@@ -52,7 +52,7 @@ verified its proof (verifier accepted; failures logged, not dropped) · [ ] cont
 
 **P6 Falsification** — [ ] falsifier ruled on every claim (no `open`) · [ ] refuted claims removed or reworded;
 weakened claims restated with their new scope · [ ] cost/price of each gain stated · [ ] Fiat–Shamir audit passed
-(fiat-shamir-audit <!-- TODO: link once skill exists -->) for every non-interactive protocol and implementation ·
+([fiat-shamir-audit](../fiat-shamir-audit/SKILL.md)) for every non-interactive protocol and implementation ·
 [ ] circuit audit passed (circuit-audit <!-- TODO: link once skill exists -->) for every circuit we claim correct ·
 [ ] PI decision in DECISIONS.md.
 

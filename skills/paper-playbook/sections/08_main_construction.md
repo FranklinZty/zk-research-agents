@@ -82,7 +82,7 @@ is acceptable. Never put proof-relevant checks only in prose below the box.
   some of your own benchmarked configurations is a guaranteed catch.
 - **Separate the PIOP theorem from the compilation theorem.** Reviewers want to see
   which error comes from the information-theoretic part and which from the PCS and
-  Fiat–Shamir; this is also what piop-pcs-compile <!-- TODO: link once skill exists -->
+  Fiat–Shamir; this is also what [piop-pcs-compile](../../piop-pcs-compile/SKILL.md)
   checks.
 - **Sufficient vs necessary.** Do not use a sufficient condition as if it were
   necessary. If only one direction is proven, say so.

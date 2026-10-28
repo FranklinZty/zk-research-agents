@@ -28,8 +28,8 @@ soundness or zero-knowledge analysis, because ___."*
   sampled from, query count and proximity parameter, grinding, the SRS / trusted setup, masking and hiding
   randomness, the hash modelled as a random oracle, anything the soundness or ZK proof quantifies over): exclude
   structurally. Changing it changes the *theorem*, not just the cost: "fewer queries" or "a smaller challenge
-  field" is a lower security level, not an optimisation. Route any such idea through soundness-budget and
-  zk-definitions <!-- TODO: link once skill exists --> before it counts as a gain.
+  field" is a lower security level, not an optimisation. Route any such idea through [soundness-budget](../soundness-budget/SKILL.md) and
+  [zk-definitions](../zk-definitions/SKILL.md) before it counts as a gain.
 - **Substrate** (field arithmetic and representation, NTT/MSM scheduling, Merkle layout and leaf packing, memory
   layout, witness generation, parallelisation, constraint layout that provably preserves the relation): allowed —
   but passing this gate is necessary, not sufficient. Step 6 is still mandatory.

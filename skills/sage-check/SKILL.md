@@ -86,6 +86,6 @@ sage -python skills/sage-check/scripts/sanity_check_template.py     # uses Sage 
   roots of unity and evaluation domains.
 - Small fields hide nothing about the *algebra* but everything about the *security
   level*: a check over F₉₇ validates the identity and the shape of the bound, not the
-  128-bit claim. The bits come from soundness-budget <!-- TODO: link once skill exists -->.
+  128-bit claim. The bits come from [soundness-budget](../soundness-budget/SKILL.md).
 - Mathematica, if connected, is useful for closed forms and series. Treat its output
   as a hint, then recheck with exact finite computation.

@@ -49,7 +49,7 @@ Work through all seven. Stop early only on a clean refutation.
      out, including which values are public.
    Also: does a symbol mean the same thing in the abstract, the theorem and the
    experiment (e.g. "n" as number of constraints in one place and trace length after
-   padding in another)? Cross-check against zk-definitions <!-- TODO: link once skill exists -->.
+   padding in another)? Cross-check against [zk-definitions](../zk-definitions/SKILL.md).
 2. **Model and assumptions.** In which model is the theorem proven: ROM, AGM, GGM, or
    the standard model? Does it need a **trusted setup** (and is that stated in the
    abstract), a universal/updatable SRS, or none? Is a **conjecture** used, such as a
@@ -62,7 +62,7 @@ Work through all seven. Stop early only on a clean refutation.
    absorb the statement, public inputs, all commitments and the parameters, in the
    order they are produced? Is the multi-round soundness loss (round-by-round
    soundness, not just the interactive bound) accounted for? Do paper and code agree?
-   Hand this to fiat-shamir-audit <!-- TODO: link once skill exists --> and record its
+   Hand this to [fiat-shamir-audit](../fiat-shamir-audit/SKILL.md) and record its
    report path here.
 4. **Small-parameter exhaustion.** Try the smallest fields (F₁₇, F₉₇), smallest degrees
    and number of variables (d = 1, μ = 1, 2), the smallest folding factor and the
@@ -91,8 +91,8 @@ Work through all seven. Stop early only on a clean refutation.
    commit? Are P time, V time and proof size reported together, and recursion or
    wrapping costs listed separately? A cited number never reproduced locally, or a
    single-configuration win reported as general, weakens the claim. Cross-check with
-   `skills/baseline-pin`, `skills/bench-protocol` and soundness-budget
-   <!-- TODO: link once skill exists -->; recompute the soundness budget independently
+   `skills/baseline-pin`, `skills/bench-protocol` and
+   [soundness-budget](../soundness-budget/SKILL.md); recompute the soundness budget independently
    rather than re-reading the theorist's table.
 7. **Literature pre-emption.** Search for the core identity, PIOP or optimisation under
    other names. Check: the target paper's own citations; ePrint from the last 24
