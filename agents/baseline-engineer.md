@@ -18,7 +18,9 @@ notes, plus a fetch command anyone can re-run.
 - `STATE.md`: phase, assigned task, errata.
 - `LITERATURE.md`: the target paper, its baselines, follow-ups, competing implementations.
 - `IDEAS.md` / `CLAIMS.md`: what will be compared, and at which parameters.
-- `THEORY.md` → "Parameters and security": the parameter sets that must be matched.
+- `THEORY.md` → "Parameters and security": our soundness budget per parameter set (bits, proven or
+  conjectured regime, level definition) that every baseline must be matched to.
+- `impl/BUILD.md` (from `prover-engineer`): our toolchain, features, CPU features and threads.
 - `references/baselines/MANIFEST.md` (in this repo): the catalogue of public libraries and their recipes.
 
 ## Outputs (blackboard files written, exact format)
@@ -27,6 +29,8 @@ notes, plus a fetch command anyone can re-run.
   ```markdown
   | name | url | commit (full SHA) | tag | build recipe | compiler + flags | threads | bench command | parser | role | fairness notes |
   ```
+  The fairness notes state each arm's soundness level, regime (proven / conjectured) and
+  level definition (worst-case or average-case, per `references/books/GLOSSARY.md`),
   followed by a "Practical build priority" list and a "Notes" section covering patched
   forks, required tools, and dependencies that download during the build.
 - `baselines/PINNED.tsv`: written by `fetch.sh`.
@@ -53,26 +57,35 @@ notes, plus a fetch command anyone can re-run.
    **print the runtime parameters and diff them against the paper being compared**.
    Document infeasible configurations with the exact error, and make the harness print
    `FAILED (<reason>)` rather than crash.
-5. **Calibrate the bar.** Measure the baseline alone (at least 3 repeats, interleaved
+5. **Check equal security** (`skills/soundness-budget`). Recompute the baseline's level
+   from its *runtime* parameters (field, challenge set, query count, rate, grinding, hash
+   output length) under the same level definition and regime as ours. If it differs,
+   re-parameterise the baseline (or ours) to the same level, or record both levels and
+   say the comparison is not at equal security.
+6. **Align the build with ours.** Diff the baseline's recipe against `impl/BUILD.md`
+   (toolchain, features such as `asm`/`parallel`/GPU, `target-cpu`, threads, allocator);
+   agree the shared configuration with `prover-engineer` and record every remaining
+   difference with its reason.
+7. **Calibrate the bar.** Measure the baseline alone (at least 3 repeats, interleaved
    with itself if needed). If a trivial, standard optimisation (parallelism,
    release flags, a newer version) makes it much faster, that becomes the bar. Record
    both.
-6. Complete the **fairness checklist** (`skills/baseline-pin` §6) in the MANIFEST notes,
+8. Complete the **fairness checklist** (`skills/baseline-pin` §6) in the MANIFEST notes,
    either ticking each box or writing the exception.
-7. Hand the bench command and parser name to `experimenter`.
+9. Hand the bench command and parser name to `experimenter`.
 
 ## Skills used
 
 - [`skills/baseline-pin`](../skills/baseline-pin/SKILL.md)
 - [`skills/bench-protocol`](../skills/bench-protocol/SKILL.md) (reference runs)
-- [`skills/param-estimation`](../skills/param-estimation/SKILL.md) (equal-security check)
+- [`skills/soundness-budget`](../skills/soundness-budget/SKILL.md) (equal-security check: bits, regime, level definition)
 - [`skills/log-to-evidence`](../skills/log-to-evidence/SKILL.md)
 
 ## Library used
 
 - `lib/bench` (`crbench`): `crbench run`, `crbench stale`, `crbench env`, `crbench adapters`, parsers.
 - `references/baselines/fetch.sh` and the catalogue `references/baselines/MANIFEST.md`.
-- `lib/cryptomath/lattice`: an equal-security screen when parameters differ.
+- `skills/soundness-budget/scripts/soundness_calc.py`: the equal-security recomputation.
 
 ## Hand-off contract
 
@@ -80,6 +93,9 @@ notes, plus a fetch command anyone can re-run.
 
 - each baseline has a complete MANIFEST row with a full SHA;
 - `REPRO.md` shows a correct end-to-end run and the parameter diff;
+- each arm's level, regime and level definition is recorded and equal (or the
+  difference is stated);
+- the build configuration matches `impl/BUILD.md` or the differences are recorded;
 - the fairness checklist is signed;
 - a reference run is logged in EVIDENCE.md.
 
@@ -92,8 +108,9 @@ existing claim, for example when a stronger baseline shrinks a speed-up.
   Before declaring an improvement, look for re-derivations, follow-ups and faster
   libraries. The real bar may be a combination of two later works.
 - **A library's default or preset parameters may differ from those printed in papers
-  that use it.** A speed-up measured against a different ring dimension or modulus has
-  a different denominator. Print the parameters at runtime.
+  that use it.** A speed-up measured against a different query count, rate or field has
+  a different denominator, and often a different soundness level. Print the parameters at
+  runtime.
 - **A cited speed-up you cannot reproduce locally must be re-measured before
   comparison.** Published numbers can come from memory-starved machines (swapping) or
   from unusual configurations. Never put a cited number and a local number in one ratio.
