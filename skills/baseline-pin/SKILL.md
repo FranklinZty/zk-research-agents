@@ -79,7 +79,8 @@ project's own `bench`/`profiling` profile) and say which.
 - [ ] The **runtime parameters are printed and diffed** against the paper you compare
       with: field and extension degree, curve, code rate, number of queries, folding
       factor, grinding bits, hash, PCS, number of rows/columns or constraints, and the
-      claimed security level **with its regime** (provable or conjectured). A library
+      claimed security level **with its regime** (provable or conjectured) and its
+      level definition (worst-case or average-case, see [GLOSSARY](../../references/books/GLOSSARY.md)). A library
       default named "100-bit" or "128-bit" can rest on a conjectured proximity bound,
       or on a curve whose real security is below the label; if the paper's speed-up
       used different parameters from the library default, the denominator changed.
@@ -108,7 +109,12 @@ Add a "Practical build priority" list: which baseline to reproduce first, and wh
 
 - [ ] **Same security bits, same regime.** Both arms reach the same number of bits,
       computed the same way ([soundness-budget](../soundness-budget/SKILL.md)),
-      and both are provable or both conjectured. If not, re-parameterise the baseline
+      and both are provable or both conjectured. "Same bits" also means the same
+      **level definition**: worst-case (ε(t) ≤ 2^−s for all t ≤ 2^s) or average-case
+      (t/ε(t) ≥ 2^s), as defined in the [GLOSSARY](../../references/books/GLOSSARY.md) after
+      [CY24 §Security levels, section:security-levels]. Write which one each arm uses in
+      MANIFEST.md; a baseline's "128 bits" read as average-case is not our worst-case
+      128 bits. If not, re-parameterise the baseline
       and report both its default and the matched configuration. Curves count too:
       a pairing curve's real security can sit below its nominal label.
 - [ ] **Same statement.** The same computation on the same input sizes. Constraint

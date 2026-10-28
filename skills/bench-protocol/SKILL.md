@@ -46,6 +46,13 @@ description: Measurement protocol for trustworthy timings. It covers interleaved
     Examples: a smaller field or extension degree, fewer queries (i.e. a lower security
     level), a skipped phase (witness generation moved out of the timed region), cache
     effects, a GPU kernel that hides transfers. Otherwise, suspect the measurement.
+11. **Same security level, named.** Every comparison runs both arms at the same
+    security level, computed with the same definition — worst-case or average-case,
+    as defined in the [GLOSSARY](../../references/books/GLOSSARY.md) after
+    [CY24 §Security levels, section:security-levels] — and in the same regime (proven or
+    conjectured). The run records which definition and regime it used (in `run.json`
+    notes and the EVIDENCE row), next to the parameters that set the level (field and
+    extension, rate, queries, grinding bits, hash, curve); see `skills/baseline-pin`.
 
 ## Command
 
