@@ -64,6 +64,11 @@ Rules:
    its earliest verifiable date (archive snapshot, commit date), not from the date you found it.
 5. Log grey hits with `sources: ...,grey` in the novelty line; `hits reviewed` counts them too.
 
+## Seeding from the reference books
+
+For older and foundational work (before the 24-month window), the bibliographic notes of the reference books — [CY24 §Bibliographic notes, section:bibliographic-notes] for the hash-based line, and the references of the relevant Thaler chapter (navigation: [references/books/thaler/MAP.md](../../references/books/thaler/MAP.md)) for the algebraic one — are a good source of entries for `references/reading-lists/`. Take only the bibliographic entry (authors, title, venue/ePrint id), never the books' commentary, and add it only after [bib-verify](../bib-verify/SKILL.md) has confirmed it. A book's citation tells you that a
+paper exists and what it is about; whether it pre-empts an idea is still decided by reading the paper.
+
 ## Pitfalls
 
 - A concurrent ePrint published during your project is normal; record it with its date — reviewers accept

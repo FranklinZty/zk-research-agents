@@ -44,7 +44,7 @@ Column rules (enforced by `scripts/lit_matrix.py`):
 ## Procedure
 
 1. Seed from `references/reading-lists/<area>.md`, then expand with `eprint-search` (last 12 months first,
-   including its grey-literature pass).
+   including its grey-literature pass). To grow the reading list itself, the bibliographic notes of the reference books — [CY24 §Bibliographic notes, section:bibliographic-notes] for the hash-based line, and the references of the relevant Thaler chapter (navigation: [references/books/thaler/MAP.md](../../references/books/thaler/MAP.md)) for the algebraic one — are a good source of entries for `references/reading-lists/`. Take only the bibliographic entry (authors, title, venue/ePrint id), never the books' commentary, and add it only after [bib-verify](../bib-verify/SKILL.md) has confirmed it.
 2. One row per *result* (a paper with two incomparable results gets two rows).
 3. Fill numbers only from the paper's tables/figures; if the paper's parameters differ from ours, note it in
    the numbers cell (security level, hardware, timing scope) instead of "normalising" silently.
