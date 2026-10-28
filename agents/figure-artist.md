@@ -64,7 +64,8 @@ related work without copying any of them.
 * `figures/templates/p01..p16`, `figures/templates/tikz/*`.
 * `figures/harvester/harvest.py`, `gallery.py`.
 * `lib/bench` (`crbench`): table generator and bootstrap CIs for C15/C16.
-* `lib/cryptomath`: error/sample distributions (C10) and cost models (C12).
+* `lib/cryptomath`: sample distributions (C10) and cost models (C12);
+  `skills/prover-cost-model` predictions for model-vs-measurement panels.
 
 ## Hand-off contract
 A figure is **done** when all of the following hold:
@@ -92,7 +93,8 @@ Next agents:
   panel, or the CI in the caption.
 * **"Before" and "after" pipeline diagrams with different layouts** hide the
   change. Keep the same layout and tint only the new stage.
-* **Toy security curves** (C4) must be replaced by estimator output, with
-  the estimator version recorded, before submission.
+* **Toy security curves** (C4) must be replaced by soundness-budget output
+  (`soundness_calc.py`, with its EVIDENCE id and level definition) before
+  submission.
 * **Harvested images are copyrighted.** Keep them out of git and cite only
   public ePrint IDs in notes.
