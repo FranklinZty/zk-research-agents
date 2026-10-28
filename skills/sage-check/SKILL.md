@@ -62,6 +62,32 @@ python3 skills/sage-check/scripts/sanity_check_template.py          # pure Pytho
 sage -python skills/sage-check/scripts/sanity_check_template.py     # uses Sage if present
 ```
 
+## Monte Carlo against a book bound (hash-based terms)
+
+Hash-based error terms cannot be checked at λ = 128, but their *shape* can: truncate the hash to λ = 10–14
+bits, run the attack the bound is about many times, and check that the measured success frequency stays at or
+below the bound (plus three standard errors), and that the natural attack comes close to it.
+
+```bash
+python3 skills/sage-check/scripts/merkle_collision_mc.py              # table over lam in {10,12,14}, t in {8..64}
+python3 skills/sage-check/scripts/merkle_collision_mc.py --selftest
+```
+
+The script measures (1) collision finding against t(t−1)/2^{λ+1} ([CY24 §Collision resistance, lemma:rom-cr])
+and (2) breaking the binding of a depth-1 Merkle tree — each reported break is verified as two valid openings —
+against t²/2^{λ+1} ([CY24 §Binding, lemma:mt-binding]). Sample output (2000 trials per cell): at λ = 14,
+t = 64 the collision frequency is 0.114 against a bound of 0.123, and the binding-break frequency 0.102 against
+0.125; every cell is within its bound. The self-test also shows that a wrongly transcribed linear bound t/2^λ is
+exceeded, so the check can fail. For Fiat–Shamir (grinding against strong FS, forgery against weak FS) reuse
+`skills/fiat-shamir-audit/scripts/toy_fs_attack.py`, which compares grinding success with (t+1)·ε
+([CY24 §Adaptive soundness, theorem:narg-from-sp-adaptive-soundness]). For algebraic terms (Schwartz–Zippel,
+sum-check) the template above counts exactly instead ([Thaler §3.4, Schwartz-Zippel Lemma];
+[Thaler §4.1, The Sum-Check Protocol]).
+
+A measured frequency above the bound means the bound was transcribed wrongly, a precondition (such as
+t ≥ 2(depth+1)² for the Merkle lemma, or distinct domain tags for leaves and inner nodes) is violated, or the
+experiment is wrong. It never means "the bound is loose, adjust it".
+
 ## Typical checks by area
 
 | area | what to check on toy parameters |
