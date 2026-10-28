@@ -15,8 +15,10 @@ paper; the value is in confirmed findings, not in scores.
 ## Inputs (blackboard files read)
 
 - `paper/main.pdf` and sources, `paper/NOTATION.md`
-- `CLAIMS.md` (falsifiable statements to attack), `THEORY.md`, `EVIDENCE.md`,
-  `results/` logs, `LITERATURE.md`, `refs.bib`
+- `CLAIMS.md` (falsifiable statements to attack), `THEORY.md` (assumption ledger,
+  soundness budget), `CIRCUITS.md`, `EVIDENCE.md`, `results/` logs, `LITERATURE.md`, `refs.bib`
+- `references/books/GLOSSARY.md`, `references/books/hash-snargs/MAP.md`,
+  `references/books/thaler/MAP.md`: the soundness reviewer's checklist sources
 - `SUBMISSION.md` (venue, quoted CFP rules), `STATE.md`
 - Previous `REVIEWS.md` rounds (to check that earlier issues were fixed; never to
   copy earlier scores)
@@ -38,16 +40,30 @@ paper; the value is in confirmed findings, not in scores.
 ## Procedure
 
 1. Read the venue calibration (`skills/venue-calibration`) and pick 3–5 personas
-   and their weights.
+   and their weights. The soundness reviewer is mandatory for a protocol/theory paper,
+   the implementation-and-benchmark reviewer for a system paper, the
+   application-and-industry-relevance reviewer for an application paper.
 2. Write the brief: falsifiable statement list (from `CLAIMS.md` and the
    contribution list), paper hash, scope (what will and will not be rerun).
 3. Run personas (as parallel sub-tasks when available), each instructed to refute
-   first: expert-skeptic (counterexamples, hypotheses vs parameter tables, body vs
-   appendix), generalist (restate-the-idea test, delta to closest work, overclaims,
-   self-containedness), implementer (baselines, fairness, scope, overheads, ablation,
-   artifact, security per instance); optional data auditor (recompute every table
-   cell from logs) and desk-reject auditor (format, page limit, anonymity via
-   `skills/anonymize-check`, links, references).
+   first (checklists in `skills/mock-review` §Personas):
+   - **soundness reviewer** (proofs and Fiat–Shamir): proven vs claimed notion, extractor
+     and simulator, model and setup in the theorem, FS transcript and multi-round loss,
+     soundness table recomputed term by term under a named level definition, hypotheses
+     vs the paper's own parameters. Checks against the books: hash-based steps against
+     the CY24 result they rely on (adaptive vs non-adaptive, SR/RBR, Merkle terms,
+     [CY24 §Security levels, section:security-levels]), algebraic steps against Thaler
+     or the original paper; a book theorem whose premise the paper does not meet is a
+     finding;
+   - **implementation-and-benchmark reviewer**: strongest pinned baseline, same
+     soundness level and regime, same statement, timing scope, threads and hardware
+     features, P/V/proof size/memory, every timed proof verified, artifact builds;
+   - **application-and-industry-relevance reviewer**: real use, trust model, on-chain
+     cost, circuit correctness argued, novelty including grey literature, restate-the-idea
+     test, "first/optimal/practical" justified;
+   - optional **data-auditor** (recompute every table cell and soundness term from logs)
+     and **desk-reject auditor** (format, page limit, anonymity via
+     `skills/anonymize-check`, links, references).
 4. Verify every finding yourself: run the counterexample script on toy parameters,
    recompute the cell, open the log, fetch the cited page. Discard what cannot be
    located.
@@ -55,8 +71,8 @@ paper; the value is in confirmed findings, not in scores.
    subjective band and the conditions that move it (never a statistical claim).
 6. Produce `SUBMIT-FIXES.md` and the list of likely rebuttal questions with the
    evidence that answers each.
-7. After the writer applies fixes, rerun at least the implementer/data and
-   desk-reject personas.
+7. After the writer applies fixes, rerun at least the implementation-and-benchmark
+   reviewer (or the data-auditor) and the desk-reject auditor.
 
 ## Skills used
 
@@ -68,8 +84,8 @@ paper; the value is in confirmed findings, not in scores.
 
 ## Library used
 
-- `lib/cryptomath` to reproduce small counterexamples and recompute derived
-  parameters (e.g. orders, bounds, DDT/LAT entries, noise estimates).
+- `lib/cryptomath` to reproduce small counterexamples on toy fields.
+- `skills/soundness-budget/scripts/soundness_calc.py` to recompute a soundness table.
 - `lib/bench` (`crbench`) log parsers to recompute table cells from raw logs.
 - `skills/camera-ready/scripts/pdf_checks.py` for layout/desk-reject checks.
 
@@ -92,7 +108,8 @@ before a rebuttal, the question list goes to `submission-rebuttal`.
 - **Recommending late style rewrites**; in the final 24 hours, only errors.
 - **Recurring catches** to check every time: personal URLs in footnotes; body vs
   appendix formula; unconditional statements with small counterexamples; theorem
-  hypotheses violated by the paper's own parameters; scope including sub-threshold
-  instances; incommensurable counters in one column; composite gains credited to one
+  hypotheses violated by the paper's own parameters; a non-adaptive or HVZK proof for an
+  adaptive or ZK claim; a conjectured term inside a "proven" level; scope including
+  sub-threshold instances; incommensurable counters in one column; composite gains credited to one
   part; asymptotic results called rigorous; fabricated or wrong bib metadata;
   overprinting near floats; best ablation missing from the body.
