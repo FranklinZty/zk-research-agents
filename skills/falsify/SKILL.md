@@ -46,12 +46,25 @@ Work through all seven. Stop early only on a clean refutation.
    - whether the application needs **simulation-extractability** (e.g. proofs that can
      be observed and re-randomised by an adversary) and whether it is proven;
    - adaptive vs non-adaptive choice of statement; the relation R = {(x; w)} written
-     out, including which values are public.
+     out, including which values are public. A proof that fixes the statement before
+     the oracle is sampled establishes only non-adaptive soundness
+     ([CY24 §Non-interactive arguments, definition:narg-nonadaptive-soundness, definition:narg-adaptive-soundness]);
+     the two notions genuinely differ, and the generic upgrade costs a factor t in the
+     error ([CY24 §Non-adaptive vs. adaptive security, lemma:non-adaptive-to-adaptive-soundness, remark:separate-adaptive-vs-nonadaptive-soundness]).
+     "Adaptive" in the theorem with a non-adaptive proof is `weakened`, with the
+     restated notion or the t-factor bound as replacement.
+   - for knowledge claims, straightline vs rewinding extraction and the extractor's
+     running time and error, against
+     [CY24 §Knowledge soundness, definition:adaptive-straightline-knowledge-soundness, definition:adaptive-rewinding-knowledge-soundness];
+     for ZK, whether the simulator programs the oracle and whether the claim is
+     once-adaptive ([CY24 §Zero knowledge, definition:once-adaptive-zk-narg]).
    Also: does a symbol mean the same thing in the abstract, the theorem and the
    experiment (e.g. "n" as number of constraints in one place and trace length after
    padding in another)? Cross-check against [zk-definitions](../zk-definitions/SKILL.md).
 2. **Model and assumptions.** In which model is the theorem proven: ROM, AGM, GGM, or
-   the standard model? Does it need a **trusted setup** (and is that stated in the
+   the standard model (for the ROM: [CY24 §Definition, definition:the-rom]; AGM and
+   pairing assumptions are outside CY24, see [Thaler §15.2, KZG: Univariate Polynomial Commitments from Pairings and a Trusted Setup])?
+   A bound proven in the pure ROM never transfers to a KZG/IPA setting. Does it need a **trusted setup** (and is that stated in the
    abstract), a universal/updatable SRS, or none? Is a **conjecture** used, such as a
    proximity-gap or list-decoding conjecture for Reed–Solomon codes beyond the proven
    range (unique decoding / Johnson bound)? Is a hash function modelled as a random
@@ -60,8 +73,15 @@ Work through all seven. Stop early only on a clean refutation.
    one is a `weakened` verdict at least.
 3. **Fiat–Shamir compilation.** For every non-interactive claim: does the transcript
    absorb the statement, public inputs, all commitments and the parameters, in the
-   order they are produced? Is the multi-round soundness loss (round-by-round
-   soundness, not just the interactive bound) accounted for? Do paper and code agree?
+   order they are produced ([CY24 §Lack of adaptive security, section:fs-lack-of-adaptive-soundness]
+   shows what an unhashed statement buys an attacker)? Is the multi-round soundness loss
+   accounted for? A many-round protocol needs a proof of state-restoration soundness or
+   of something that implies it (round-by-round or special soundness): from ordinary
+   soundness alone the loss grows like C(t+k, k), and that is tight in general
+   ([CY24 §State restoration, lemma:ip-sr-vs-standard];
+   [CY24 §RBR soundness implies SR soundness, theorem:rbr-soundness-to-sr-soundness]).
+   A multi-round claim with neither an SR nor an RBR/special-soundness proof is at best
+   `weakened`. Do paper and code agree?
    Hand this to [fiat-shamir-audit](../fiat-shamir-audit/SKILL.md) and record its
    report path here.
 4. **Small-parameter exhaustion.** Try the smallest fields (F₁₇, F₉₇), smallest degrees
@@ -93,7 +113,14 @@ Work through all seven. Stop early only on a clean refutation.
    single-configuration win reported as general, weakens the claim. Cross-check with
    `skills/baseline-pin`, `skills/bench-protocol` and
    [soundness-budget](../soundness-budget/SKILL.md); recompute the soundness budget independently
-   rather than re-reading the theorist's table.
+   rather than re-reading the theorist's table. Equal "bits" must also mean the same
+   level definition, worst-case or average-case
+   ([CY24 §Security levels, section:security-levels]). In a hash-based budget look
+   for the query-squared Merkle terms: Merkle binding contributes about t²/2^{λ+1}
+   ([CY24 §Binding, lemma:mt-binding]) and BCS-style compilers add a t²/2^λ-type
+   total on top of the IOP's state-restoration error ([CY24 §Soundness, theorem:bcs-soundness]);
+   an error bound that lists only the IOP term with λ = 128 hashes is short by
+   these terms, and at t = 2^{128} they dominate.
 7. **Literature pre-emption.** Search for the core identity, PIOP or optimisation under
    other names. Check: the target paper's own citations; ePrint from the last 24
    months; follow-ups citing the baseline; **grey literature** (project repositories,
