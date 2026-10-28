@@ -9,7 +9,7 @@ const P = args.project, V = args.venue, PDF = args.pdf || 'paper/main.pdf'
 const REVIEW = { type: 'object', properties: { score: { type: 'number' }, confidence: { type: 'number' },
   strengths: { type: 'array', items: { type: 'string' } }, weaknesses: { type: 'array', items: { type: 'string' } },
   questions: { type: 'array', items: { type: 'string' } } }, required: ['score', 'weaknesses'] }
-const PERSONAS = ['expert-skeptic in exactly this sub-area', 'generalist PC member from a neighbouring area', 'implementer who will try to reproduce the numbers']
+const PERSONAS = ['soundness reviewer (proofs and Fiat–Shamir) from skills/mock-review', 'implementation-and-benchmark reviewer from skills/mock-review', 'application-and-industry-relevance reviewer from skills/mock-review']
 phase('Review')
 const reviews = (await parallel(PERSONAS.map(p => () => agent(
   `Review ${P}/${PDF} for ${V} as a ${p}. Use skills/venue-calibration for the scoring scale. Check claims against ${P}/CLAIMS.md and ${P}/EVIDENCE.md.`,

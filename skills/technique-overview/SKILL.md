@@ -10,7 +10,8 @@ description: Use when writing the Technique Overview (a.k.a. "Our Techniques") s
 After reading only the abstract, introduction and overview, a reviewer can:
 (a) restate the main idea in two sentences, (b) write down the key formula,
 (c) say where each prior work sits relative to it, (d) believe the main theorem is
-plausibly true. Ask `reviewer-sim` (generalist persona) to perform exactly this test.
+plausibly true. Ask `reviewer-sim` (application-and-industry-relevance reviewer, which runs the
+restate-the-idea test) to perform exactly this test.
 
 ## Procedure
 
