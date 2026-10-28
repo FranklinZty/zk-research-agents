@@ -11,8 +11,7 @@ smaller field or a cheaper hash all buy speed by spending soundness. Typical fai
 table and a conjectured one in another; an interactive soundness error used for a Fiat–Shamir-compiled
 argument; challenges sampled from the base field while the bound uses the extension; a level that silently
 uses a different definition from the baseline's. This skill makes every term explicit, sourced and
-recomputable. It takes over, for ZK, the role `skills/param-estimation` played for lattice and symmetric
-parameters (that skill is still in the repository and is removed in a later batch).
+recomputable.
 
 Sources: hash-based terms and the definition of a security level from CY24 (pure ROM); algebraic terms from
 Thaler; Reed–Solomon proximity and anything newer from the original papers ("source: other"). Never move a
