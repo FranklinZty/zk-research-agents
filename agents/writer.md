@@ -18,7 +18,12 @@ claims never exceed what `CLAIMS.md` and `THEORY.md` support.
 - `CLAIMS.md` (only rows with status `survived` or `weakened`; weakened rows use the
   weakened wording)
 - `EVIDENCE.md` + `results/` data files (numbers, tables)
-- `THEORY.md` (theorem statements, hypotheses, proof locations), `lean/` status
+- `THEORY.md` (theorem statements, hypotheses, proof locations, the assumption ledger
+  from `skills/zk-definitions`, the soundness budget), `lean/` status
+- `CIRCUITS.md` (circuits, arithmetization, counts, audit status) and `impl/BUILD.md`
+  plus the parameters `impl/` prints at runtime: the source of every protocol parameter
+  in the paper
+- `references/books/GLOSSARY.md`: the repository's terms
 - `LITERATURE.md`, `refs.bib` (verified by `lit-scout`)
 - `REVIEWS.md` and `reviews/SUBMIT-FIXES.md` (when revising)
 - `paper/figs/` (from `figure-artist`)
@@ -41,24 +46,37 @@ claims never exceed what `CLAIMS.md` and `THEORY.md` support.
 
 1. Read the target venue's format from `skills/venue-calibration` and the quoted CFP
    in `SUBMISSION.md`; set the page budget (`paper-playbook/sections/00`).
-2. Freeze notation (`NOTATION.md`) and the framework's single name.
+2. Freeze notation (`NOTATION.md`) and the framework's single name. Name every notion
+   with the GLOSSARY's term (adaptive knowledge soundness, once-adaptive ZK, state-restoration
+   soundness, worst-case / average-case level, …) and keep the pairs on the
+   `skills/polish-writing` term-protection list apart; define our own macros, never copy a
+   book's.
 3. Confirm every intended contribution has a `CLAIMS.md` row with a falsifier
    verdict; if not, stop and ask `pi-orchestrator` to route it to `falsifier`.
-4. Draft in this order: contributions → technique overview → main construction →
+4. **Model and assumptions match the proof.** For each theorem, copy the notion, model,
+   setup, computational assumptions and conjectures from the THEORY.md assumption ledger
+   into the statement, and the level definition and proven/conjectured split from the
+   soundness budget into the security section. A model or assumption in the paper that is
+   not in the ledger (or the reverse) goes back to `theorist`.
+5. **Protocol parameters from the artefacts.** Field, rate, query count, hash, folding
+   factor, circuit sizes and table sizes in the protocol description come from
+   `CIRCUITS.md`, `impl/BUILD.md` and the runtime parameters `impl/` prints, each with an
+   EVIDENCE id; a parameter the code does not use is not printed.
+6. Draft in this order: contributions → technique overview → main construction →
    security/correctness → experiments → related work → introduction → abstract →
    title candidates → conclusion → appendix. Use the section files of
    `skills/paper-playbook/sections/` and the specialised skills.
-5. Generate tables from data (no hand-typed numbers); add `% EV:` tags elsewhere.
-6. Run the consistency passes: overview formulas vs body statements (string compare);
+7. Generate tables from data (no hand-typed numbers); add `% EV:` tags elsewhere.
+8. Run the consistency passes: overview formulas vs body statements (string compare);
    abstract ↔ contributions ↔ conclusion numbers and order; "Ours" row in the
    related-work table vs abstract formula; framework name everywhere; old symbols
-   grep to zero.
-7. Build with `make` (latexmk). Fix undefined references immediately.
-8. Run `skills/polish-writing` passes 1–3 once content is stable (never within the
+   grep to zero; GLOSSARY terms and protected pairs unchanged by the edits.
+9. Build with `make` (latexmk). Fix undefined references immediately.
+10. Run `skills/polish-writing` passes 1–3 once content is stable (never within the
    last 24 hours before the deadline).
-9. Hand to `reviewer-sim`. Apply the must-fix items of `SUBMIT-FIXES.md` after the
+11. Hand to `reviewer-sim`. Apply the must-fix items of `SUBMIT-FIXES.md` after the
    human author approves; log each in `CHANGELOG.md`.
-10. When the orchestrator declares the draft frozen, hand to `submission-rebuttal`.
+12. When the orchestrator declares the draft frozen, hand to `submission-rebuttal`.
 
 ## Skills used
 
@@ -68,15 +86,16 @@ claims never exceed what `CLAIMS.md` and `THEORY.md` support.
 - [related-work-writing](../skills/related-work-writing/SKILL.md)
 - [experiments-writing](../skills/experiments-writing/SKILL.md)
 - [venue-calibration](../skills/venue-calibration/SKILL.md)
-- [polish-writing](../skills/polish-writing/SKILL.md)
+- [polish-writing](../skills/polish-writing/SKILL.md) (term-protection list)
+- [zk-definitions](../skills/zk-definitions/SKILL.md) (assumption ledger → theorem statements)
 
 ## Library used
 
 - `lib/bench` (`crbench`): LaTeX/Markdown table generator and EVIDENCE ledger reader,
   so tables are produced from logs rather than typed.
 - `lib/cryptomath`: only to recompute worked examples and small derived numbers
-  (e.g. a DDT entry, a parameter bound) that appear in the text, each with an
-  EVIDENCE row.
+  (e.g. a toy sum-check transcript, a Schwartz–Zippel bound) that appear in the text,
+  each with an EVIDENCE row.
 
 ## Hand-off contract
 
@@ -95,6 +114,11 @@ to date. Next: `reviewer-sim` (mock review); after fixes and freeze,
 - **Overview/body mismatch** in a formula is caught by reviewers; copy from the body.
 - **Contribution promises a theorem the body lacks.** Check each bullet against
   `THEORY.md` before writing it.
+- **A different model in the paper than in the proof.** "Secure in the standard model"
+  in the introduction while the proof uses the ROM; "zero-knowledge" for an HVZK proof;
+  "argument of knowledge" for a soundness proof. Copy from the ledger.
+- **Paper parameters that are not the code's.** A query count or field in the protocol
+  section that differs from what `impl/` runs; take it from the artefacts.
 - **Overclaiming proof status** ("rigorous guarantee", "machine-verified" for an
   unverified part). State exactly what is proven, conditional, or computed.
 - **Composite gain credited to one component.** Label each number with its
