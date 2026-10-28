@@ -58,7 +58,8 @@
 * `figures/templates/p01..p16` 和 `figures/templates/tikz/*`。
 * `figures/harvester/harvest.py` 与 `gallery.py`。
 * `lib/bench`（`crbench`）：表格生成，以及 C15/C16 用的 bootstrap 置信区间。
-* `lib/cryptomath`：误差/样本分布（C10）、代价模型（C12）。
+* `lib/cryptomath`：样本分布（C10）、代价模型（C12）；
+  `skills/prover-cost-model` 的预测值，用于“模型 vs 实测”面板。
 
 ## 交接约定
 一张图满足以下全部条件才算完成：
@@ -79,5 +80,5 @@
 * 饼图和彩色背景是已发表密码学论文性能图里最常见的毛病。改用堆叠条形图（C2），坐标区保持素净。
 * 只给加速比柱状图、不给多次运行的离散程度，审稿人会怀疑差异只是噪声。应补一张 C15 分布图，或在图注中给出置信区间。
 * 改进前后的流水线图如果布局不同，读者看不出改了哪里。保持布局一致，只给新增的步骤着色。
-* C4 中的玩具安全曲线，投稿前必须换成 estimator 的实际输出，并记录 estimator 版本。
+* C4 中的玩具安全曲线，投稿前必须换成 soundness-budget 的输出（`soundness_calc.py`，记录其 EVIDENCE id 和安全级别定义）。
 * 采集到的图片受版权保护，不能提交到 git；笔记里只引用公开的 ePrint 编号。
