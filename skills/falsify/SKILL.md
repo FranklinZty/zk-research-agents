@@ -108,7 +108,7 @@ Work through all seven. Stop early only on a clean refutation.
 
 A claim of the form "circuit C correctly implements function f" (or "is not
 under-constrained") is a separate class. Run the seven steps where they apply, and in
-addition hand it to circuit-audit <!-- TODO: link once skill exists -->: under- and
+addition hand it to [circuit-audit](../circuit-audit/SKILL.md): under- and
 over-constraint checks, witness uniqueness by exhaustion on a small field, differential
 tests between the witness generator and the constraints, range and wrap-around (mod p)
 checks, non-deterministic hints. A single second witness for the same public input

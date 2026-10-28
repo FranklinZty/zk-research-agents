@@ -41,8 +41,8 @@ description: Measurement protocol for trustworthy timings. It covers interleaved
    input is rejected. Verification is timed separately from proving. A fast prover
    emitting an invalid proof is not a data point.
 10. **Explain surprises.** If a wall-clock speed-up exceeds the operation-count ratio
-    (MSM size, NTT size, hashes, sum-check rounds; see prover-cost-model
-    <!-- TODO: link once skill exists -->), find the mechanism before publishing.
+    (MSM size, NTT size, hashes, sum-check rounds; see
+    [prover-cost-model](../prover-cost-model/SKILL.md)), find the mechanism before publishing.
     Examples: a smaller field or extension degree, fewer queries (i.e. a lower security
     level), a skipped phase (witness generation moved out of the timed region), cache
     effects, a GPU kernel that hides transfers. Otherwise, suspect the measurement.

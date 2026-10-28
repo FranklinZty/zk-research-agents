@@ -83,5 +83,6 @@ Page budget by paper type (LNCS, ~25–30 pp. body; details in `00_overall_struc
   [venue-calibration](../venue-calibration/SKILL.md), [polish-writing](../polish-writing/SKILL.md)
 - ZK theory: [zk-definitions](../zk-definitions/SKILL.md), [piop-pcs-compile](../piop-pcs-compile/SKILL.md),
   [soundness-budget](../soundness-budget/SKILL.md), [fiat-shamir-audit](../fiat-shamir-audit/SKILL.md)
-- Not yet available (later batch): circuit-audit <!-- TODO: link once skill exists -->.
+- Circuits and cost: [circuit-audit](../circuit-audit/SKILL.md), [constraint-cost](../constraint-cost/SKILL.md),
+  [prover-cost-model](../prover-cost-model/SKILL.md).
 - LaTeX skeleton: `templates/paper/`.

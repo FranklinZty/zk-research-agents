@@ -109,8 +109,8 @@ Count from the PIOP table, per proof, before implementing:
 
 Express each entry in operation counts (field mults, hashes, MSM of size n, pairings) and as a function of the
 parameters the soundness budget fixes (queries, rate, field). The detailed per-operation model belongs to
-prover-cost-model <!-- TODO: link once skill exists -->; circuit sizes come from constraint-cost
-<!-- TODO: link once skill exists -->.
+[prover-cost-model](../prover-cost-model/SKILL.md); circuit sizes come from
+[constraint-cost](../constraint-cost/SKILL.md).
 
 ## Output (THEORY.md, "Construction and compilation")
 

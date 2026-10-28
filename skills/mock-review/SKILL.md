@@ -105,7 +105,7 @@ subjective band with conditions (not a statistic) | top preparation items for re
 | benchmark | only prover time reported; proof size or verifier time worse and omitted | P, V, proof size, memory together |
 | benchmark | comparison against an outdated release of a fast-moving library | pin the current release; date the comparison |
 | benchmark | constraint counts compared across arithmetizations | compare the same computation end to end |
-| circuits | under-constrained gadget (a second witness for the same public input), field wrap-around in a range check | circuit-audit <!-- TODO: link once skill exists -->; witness-uniqueness check on a toy field |
+| circuits | under-constrained gadget (a second witness for the same public input), field wrap-around in a range check | [circuit-audit](../circuit-audit/SKILL.md); witness-uniqueness check on a toy field |
 | data | two incommensurable counters in one column | state each column's counter source in the caption |
 | writing | composite gain credited to one component | label each number with its configuration; prover-phase breakdown |
 | writing | "post-quantum", "transparent", "succinct" without the assumption, setup or bound | name the assumption and the bound once, in the theorem and the abstract |

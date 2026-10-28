@@ -145,4 +145,5 @@ proximity, FRI internals) and algebraic commitments are out of scope: see [../th
 | salts for ZK (fiat-shamir-audit) | [CY24 §Lack of adaptive security, section:fs-lack-of-adaptive-zk] · [CY24 §Zero knowledge, theorem:hashchain-fs-zero-knowledge] · [CY24 §Hiding, lemma:mt-privacy] |
 | compile an IOP with Merkle trees (piop-pcs-compile) | [CY24 §Soundness, theorem:bcs-soundness] · [CY24 §Knowledge soundness, theorem:bcs-knowledge-soundness] · [CY24 §Zero knowledge, theorem:bcs-zero-knowledge] |
 | preprocessing / holography (piop-pcs-compile) | [CY24 §The COS transformation, construction:cos-transformation] · [CY24 §Security of the COS transformation, theorem:cos-soundness] |
+| Merkle opening and argument size (prover-cost-model) | [CY24 §Path pruning, lemma:path-pruning-is-copaths-minus-paths, lemma:path-pruning-lower-and-upper] · [CY24 §Construction, construction:bcs-transformation, equation:bcs-prover-to-verifier] |
 | check an adaptive-vs-non-adaptive claim (falsify) | [CY24 §Non-adaptive vs. adaptive security, lemma:non-adaptive-to-adaptive-soundness] · [CY24 §Lack of adaptive security, section:fs-lack-of-adaptive-soundness] |

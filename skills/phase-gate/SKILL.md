@@ -53,7 +53,7 @@ verified its proof (verifier accepted; failures logged, not dropped) · [ ] cont
 **P6 Falsification** — [ ] falsifier ruled on every claim (no `open`) · [ ] refuted claims removed or reworded;
 weakened claims restated with their new scope · [ ] cost/price of each gain stated · [ ] Fiat–Shamir audit passed
 ([fiat-shamir-audit](../fiat-shamir-audit/SKILL.md)) for every non-interactive protocol and implementation ·
-[ ] circuit audit passed (circuit-audit <!-- TODO: link once skill exists -->) for every circuit we claim correct ·
+[ ] circuit audit passed ([circuit-audit](../circuit-audit/SKILL.md)) for every circuit we claim correct ·
 [ ] PI decision in DECISIONS.md.
 
 **P7 Writing + figures** — [ ] every paper number has an EVIDENCE row · [ ] every claim in the paper maps to a

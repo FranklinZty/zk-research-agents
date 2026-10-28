@@ -87,7 +87,7 @@ What ZK reviewers look for, by paper type and venue:
 | "Claims stronger than theorems" | CRYPTO/EC/TCC | scope every claim; knowledge soundness vs soundness, HVZK vs ZK stated; weakened CLAIMS wording |
 | "Counterexample to a lemma" / "extractor does not work" | all | falsifier exhaustive search on small fields before submission; run the extractor on a toy instance (`skills/sage-check`) |
 | "Fiat–Shamir transformation underspecified" | all | transcript contents listed explicitly; multi-round FS loss accounted for; code and paper agree ([fiat-shamir-audit](../fiat-shamir-audit/SKILL.md)) |
-| "Circuit may be under-constrained" | security venues, FC/AFT | circuit audit results reported (circuit-audit <!-- TODO: link once skill exists -->); witness-uniqueness argument for the gadgets that matter |
+| "Circuit may be under-constrained" | security venues, FC/AFT | circuit audit results reported ([circuit-audit](../circuit-audit/SKILL.md)); witness-uniqueness argument for the gadgets that matter |
 | "Key content only in the appendix" | EC/CRYPTO/AC | move the new protocol and its core soundness argument into the body, compress background instead |
 | "Overlap with prior/concurrent work" | all | explicit delta paragraph covering ePrint and grey literature (project docs, blog posts); "what this paper is not" sentence |
 | "Not self-contained / hard to follow" | all | technique overview passes the goal test; notation table; protocol boxes |

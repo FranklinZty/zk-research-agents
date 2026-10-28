@@ -43,9 +43,8 @@ Full procedure, table set and fairness statements:
 ```
 
 Application/circuit papers add a **circuit correctness** paragraph before the
-results: how each gadget was checked for under-constraint (circuit-audit
-<!-- TODO: link once skill exists -->), the test vectors, and the witness-generation
-cost.
+results: how each gadget was checked for under-constraint
+([circuit-audit](../../circuit-audit/SKILL.md)), the test vectors, and the witness-generation cost.
 
 ## Number discipline (summary)
 

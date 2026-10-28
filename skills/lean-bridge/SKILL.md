@@ -37,7 +37,7 @@ SNARK is machine-checked".
 Proving that a **circuit** (R1CS, Plonkish, AIR) correctly and uniquely constrains a
 function (no under-constraint, no field wrap-around) is a different activity, with its
 own tools (circuit DSLs embedded in Lean, SMT-based under-constraint checkers, mock
-provers). It belongs to circuit-audit <!-- TODO: link once skill exists -->, which
+provers). It belongs to [circuit-audit](../circuit-audit/SKILL.md), which
 decides when a Lean proof of a gadget is worth it. lean-bridge covers the protocol's
 algebra, not the circuit's.
 
@@ -50,7 +50,7 @@ Check the state of each project before relying on it; these move fast.
 | ArkLib (`https://github.com/Verified-zkEVM/ArkLib`) | Lean 4 framework for SNARKs: interactive oracle reductions, composition, Fiat–Shamir and the BCS transform; work on sum-check, Spartan, Merkle trees, FRI and coding theory, STIR, WHIR, Binius | repository checked 2026-10; per its README it depends on Mathlib and VCV-io; reuse its definitions of IOPs and reductions instead of defining your own |
 | VCV-io | Lean library for oracle computations and probabilistic reasoning, used by ArkLib for security games | needs verification (URL and current API) |
 | Mathlib `Polynomial`, `MvPolynomial`, `Polynomial.card_roots'`, `MvPolynomial.schwartz_zippel_*` | univariate root counting, multivariate polynomials; a Schwartz–Zippel statement | lemma names change between Mathlib revisions; search with `lean_loogle` / `lean_local_search`, never from memory (needs verification) |
-| Lean-embedded circuit DSLs and verified-zkEVM circuit projects | circuit correctness, not protocol algebra | out of scope here; see circuit-audit <!-- TODO: link once skill exists --> |
+| Lean-embedded circuit DSLs and verified-zkEVM circuit projects | circuit correctness, not protocol algebra | out of scope here; see [circuit-audit](../circuit-audit/SKILL.md) |
 
 Note: `lib/lean-template/` still ships the inherited examples (`Cyclotomic.lean`,
 `RootsOfUnity.lean`). They remain useful as a build-and-cache template; ZK-specific
