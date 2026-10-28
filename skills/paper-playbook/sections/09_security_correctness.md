@@ -26,10 +26,22 @@ model and notions here match §2 exactly.
   knowledge error κ(λ) = … in the ROM / AGM, for every expected polynomial-time 𝒫*."
   If only soundness is proven, say "soundness"; if witness-extended emulation is
   needed (e.g. for composition), prove that.
+- **Write explicit error bounds, not "negl".** State κ as a function of the query
+  bound t, the hash output size λ and the instance parameters, and say which
+  security-level definition turns it into bits (worst-case or average-case,
+  [CY24 §Security levels, section:security-levels]). CY24 is the model for this
+  style: every theorem there carries such an expression; a compact index of them is
+  [CY24 §Error bounds, table:narg-error-bounds, table:commitment-error-bounds].
 - **Split the error.** κ = ε_PIOP + ε_PCS + ε_FS: the information-theoretic PIOP error
   (Schwartz–Zippel terms, sum-check terms, proximity terms), the PCS extraction /
   binding failure, and the Fiat–Shamir loss (number of hash queries times the
-  round-by-round or state-restoration error). Each term gets its own lemma.
+  round-by-round or state-restoration error). Each term gets its own lemma. For
+  hash-based compilers the reference statements are
+  [CY24 §Soundness, theorem:bcs-soundness] (IOP + Merkle trees) and
+  [CY24 §Knowledge soundness, theorem:bcs-knowledge-soundness]; for the FS loss,
+  [CY24 §RBR soundness implies SR soundness, theorem:rbr-soundness-to-sr-soundness].
+  For algebraic terms, Schwartz–Zippel and sum-check:
+  [Thaler §3.4, Schwartz-Zippel Lemma], [Thaler §4.1, The Sum-Check Protocol].
 - **Extractor construction, in words before formulas.** Say how ℰ obtains the
   witness:
   - *PCS extraction:* run the PCS extractor on every commitment the prover sends
@@ -41,6 +53,13 @@ model and notions here match §2 exactly.
     expected running time (forking lemma or a tree-of-transcripts argument).
   - *Consistency:* show that the extracted polynomials satisfy the relation except
     with probability ε_PIOP, by the PIOP soundness theorem.
+- **Reduction structure.** Write each reduction as: the adversary, the experiment it
+  plays, the event that counts as success, and the explicit loss, in the order
+  CY24 uses for its proofs (e.g. Merkle extraction from the adversary's oracle
+  queries, [CY24 §Extractability, lemma:mt-multi-configuration-multi-extractability];
+  extraction from trees of transcripts,
+  [CY24 §Extraction from forks and trees, definition:ss-tree-of-transcripts]).
+  Cite these as the reference version of the step, in your own notation.
 - **Model-specific obligations.** In the ROM, account for programming vs observing
   the oracle; in the AGM, say which group elements the adversary outputs; with a
   trusted setup, say which trapdoor must be unknown.
@@ -52,7 +71,10 @@ model and notions here match §2 exactly.
 - **Notion:** honest-verifier ZK (HVZK) for the PIOP, then ZK for the compiled
   argument; statistical, perfect or computational; with or without a trusted setup.
   For a non-interactive argument in the ROM, the simulator programs the random oracle;
-  say so.
+  say so, and whether salts make the ZK error explicit
+  ([CY24 §Zero knowledge, theorem:hashchain-fs-zero-knowledge, theorem:bcs-zero-knowledge]).
+  Masking polynomials and commit-and-prove: [Thaler §13.3, Zero-Knowledge via Masking Polynomials],
+  [Thaler §13.1, Proof Length of Witness Size Plus Multiplicative Complexity].
 - **Simulator construction:** sample the verifier's challenges first, then produce
   the prover messages with the right distribution:
   - masking: show that the evaluations the verifier sees (including **all PCS
@@ -101,8 +123,8 @@ Rules:
 - **Each term separately:** algebraic terms (Schwartz–Zippel, sum-check, lookup),
   proximity/query terms, grinding, hash output length, curve or group security (a
   pairing-friendly curve's real security can be below its label), Fiat–Shamir loss.
-  The total is the union bound (or minimum in bits) of the terms, computed by the
-  script, not by hand.
+  The total is the union bound (the sum) of the terms, computed by the script, not
+  by hand; the minimum of per-term bits overstates it.
 - **Same table for the baselines** when the paper compares performance: the
   comparison is only fair at the same row values.
 - **Field size for challenges:** say whether challenges come from 𝔽 or an extension

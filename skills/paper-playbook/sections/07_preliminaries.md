@@ -24,6 +24,18 @@ scheme**, and the **Fiat–Shamir** compilation.
 
 ## Standard notation (adapt, but declare deviations)
 
+Terms (and the notions behind them) follow the repository glossary,
+[references/books/GLOSSARY.md](../../../references/books/GLOSSARY.md), which maps each term to its CY24 or
+Thaler source. Use the glossary's *names* and define the symbols yourself: the macros in
+`templates/paper/` are ours; do **not** copy the books' macro packages or class files (CY24 is CC BY-SA, which
+would bind the paper's source). For the definitions themselves, write them in your notation and cite where
+the reader finds the reference version, e.g. adaptive soundness
+[CY24 §Non-interactive arguments, definition:narg-adaptive-soundness], straightline knowledge soundness
+[CY24 §Knowledge soundness, definition:adaptive-straightline-knowledge-soundness], indexed relations
+[CY24 §The preprocessing setting, definition:indexed-relation-and-language], polynomial IOPs
+[Thaler §10.2, Polynomial IOPs and Associated Succinct Arguments], the random oracle model
+[CY24 §Definition, definition:the-rom].
+
 | object | notation | remarks |
 |---|---|---|
 | security parameter | λ | concrete bits are a separate quantity; never write "λ = 128" for a soundness level without saying which term |
@@ -51,12 +63,16 @@ scheme**, and the **Fiat–Shamir** compilation.
   computational), and say whether the adversary chooses the instance adaptively. If
   simulation-extractability is claimed, define it here.
 - **State the model once.** ROM, AGM, GGM or standard model; trusted, universal /
-  updatable, or transparent setup. Every later theorem refers back to this paragraph.
+  updatable, or transparent setup. CY24 covers the pure ROM only; AGM/GGM and pairing
+  assumptions come from other sources (an entry point:
+  [Thaler §15.2, KZG: Univariate Polynomial Commitments from Pairings and a Trusted Setup]). Every later theorem refers back to this paragraph.
 - **PCS properties as a checklist.** The compilation theorem (§3 or §4) needs
   specific properties; list them in a definition so the theorem can cite them by name.
   For a hiding PCS, say whether hiding is perfect, statistical or computational.
 - **Fiat–Shamir:** state which interactive notion is preserved (e.g. round-by-round
-  soundness or state-restoration soundness) and that the transcript includes the
+  soundness or state-restoration soundness; definitions:
+  [CY24 §State restoration, definition:ip-state-restoration-soundness],
+  [CY24 §Definition, def:iop-round-by-round-soundness]) and that the transcript includes the
   index, the instance and all prior prover messages. Do not write "apply Fiat–Shamir"
   without saying what is hashed.
 - Distinguish fields precisely (𝔽_p vs 𝔽_{p^e} vs a binary tower field); define the
