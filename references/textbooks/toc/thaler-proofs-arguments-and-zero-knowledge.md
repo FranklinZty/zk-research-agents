@@ -1,27 +1,213 @@
-# Proofs, Arguments, and Zero-Knowledge (FnT Privacy & Security 2022; freely available)
+# Proofs, Arguments, and Zero-Knowledge (author's PDF, dated July 18, 2023)
 
 - **Author(s):** Justin Thaler
-- **Format:** not in local corpus
-- **TOC source:** TOC from public source (chapter level, recalled; verify against the publisher/author page)
+- **Format:** pdf (author's free download, not in the repository; fetch with `references/books/fetch.sh thaler`); pages: 329
+- **Pinned copy:** <https://people.cs.georgetown.edu/jthaler/ProofsArgsAndZK.pdf>, sha256 `ef4e0fdbce01f5a0a4b79524cb372378dbf43f4688f6d768055a27580f2c18e6`
+- **TOC source:** verified 2026-10-27 against the pinned PDF. Chapters and sections from the PDF bookmarks,
+  subsections from the numbered headings (`python3 scripts/check_book_refs.py --dump-thaler-toc`); chapter and
+  section titles also checked against the printed contents pages.
+- **Page convention:** printed page numbers (printed page = PDF page − 1).
+- **‡** = title corrected by hand from the printed heading (extraction dropped its mathematics or picked up run-in text).
+- **Published version:** Foundations and Trends in Privacy and Security 4(2–4), 2022, DOI `10.1561/3300000030`.
+  Numbering here refers to the pinned PDF; cite as `[Thaler §<number>, <title>]` (`references/books/README.md`).
 
 ## Table of contents
 
-- 1 Introduction
-- 2 The Power of Randomness: Fingerprinting and Freivalds' Algorithm
-- 3 Definitions and Technical Preliminaries
-- 4 Interactive Proofs (sum-check, GKR)
-- 5 Publicly Verifiable, Non-interactive Arguments via Fiat-Shamir
-- 6 Front Ends: Turning Computer Programs Into Circuits
-- 7 A First Succinct Argument for Circuit Satisfiability
-- 8 MIPs and Succinct Arguments
-- 9 PCPs and Succinct Arguments
-- 10 Interactive Oracle Proofs
-- 11 Zero-Knowledge Proofs and Arguments
-- 12 Sigma-Protocols and Commitments from Hardness of Discrete Logarithm
-- 13 Zero-Knowledge via Commit-and-Prove and Masking Polynomials
-- 14 Polynomial Commitments from Hardness of Discrete Logarithm
-- 15 Polynomial Commitments from Pairings
-- 16 Wrap-Up of Polynomial Commitments
-- 17 Linear PCPs and Succinct Arguments
-- 18 SNARK Composition and Recursion
-- 19 Bird's Eye View of Practical Arguments
+- 1 Introduction — p. 6
+  - 1.1 Mathematical Proofs — p. 10
+  - 1.2 What kinds of non-traditional proofs will we study? — p. 10
+    - 1.2.1 Interactive Proofs (IPs) — p. 11
+    - 1.2.2 Argument Systems — p. 12
+    - 1.2.3 Multi-Prover Interactive Proofs, Probabilistically Checkable Proofs, etc. — p. 12
+- 2 The Power of Randomness: Fingerprinting and Freivalds' Algorithm — p. 13
+  - 2.1 Reed-Solomon Fingerprinting — p. 13
+    - 2.1.1 The Setting — p. 13
+    - 2.1.2 The Communication Protocol — p. 13
+    - 2.1.3 The Analysis — p. 14
+    - 2.1.4 Cost of the Protocol — p. 15
+    - 2.1.5 Discussion — p. 15
+    - 2.1.6 Establishing Fact 2.1 — p. 16
+  - 2.2 Freivalds' Algorithm — p. 16
+    - 2.2.1 The Setting — p. 16
+    - 2.2.2 The Algorithm — p. 16
+    - 2.2.3 Runtime — p. 17
+    - 2.2.4 Completeness and Soundness Analysis — p. 17
+    - 2.2.5 Discussion — p. 17
+  - 2.3 An Alternative View of Fingerprinting and Freivalds' Algorithm — p. 17
+  - 2.4 Univariate Lagrange Interpolation — p. 18
+- 3 Definitions and Technical Preliminaries — p. 23
+  - 3.1 Interactive Proofs — p. 23
+  - 3.2 Argument Systems — p. 24
+  - 3.3 Robustness of Definitions and the Power of Interaction — p. 25
+  - 3.4 Schwartz-Zippel Lemma — p. 27
+  - 3.5 Low Degree and Multilinear Extensions — p. 28
+  - 3.6 Exercises — p. 32
+- 4 Interactive Proofs — p. 33
+  - 4.1 The Sum-Check Protocol — p. 33
+  - 4.2 First Application of Sum-Check: #SAT ∈ IP — p. 39 ‡
+  - 4.3 Second Application: A Simple IP for Counting Triangles in Graphs — p. 42
+  - 4.4 Third Application: Super-Efficient IP for MatMult — p. 45
+    - 4.4.1 Comparison to Freivalds' Protocol — p. 45
+    - 4.4.2 The Protocol — p. 46
+    - 4.4.3 Discussion of costs — p. 47 ‡
+  - 4.5 Applications of the Super-Efficient MatMult IP — p. 50
+    - 4.5.1 A Super-Efficient IP For Counting Triangles — p. 51
+    - 4.5.2 A Useful Subroutine: Reducing Multiple Polynomial Evaluations to One — p. 53
+    - 4.5.3 A Super-Efficient IP for Matrix Powers — p. 54
+    - 4.5.4 A General Paradigm for IPs with Super-Efficient Provers — p. 55
+    - 4.5.5 An IP for Small-Space Computations (and IP = PSPACE) — p. 56
+  - 4.6 The GKR Protocol and Its Efficient Implementation — p. 57
+    - 4.6.1 Motivation — p. 57
+    - 4.6.2 The GKR Protocol and Its Costs — p. 58
+    - 4.6.3 Protocol Overview — p. 59
+    - 4.6.4 Protocol Details — p. 59 ‡
+    - 4.6.5 Discussion of Costs and Soundness — p. 63 ‡
+    - 4.6.6 Evaluating ~add_i and ~mult_i Efficiently — p. 66 ‡
+    - 4.6.7 Leveraging Data Parallelism for Further Speedups — p. 67
+    - 4.6.8 Tension Between Efficiency and Generality — p. 70
+  - 4.7 Exercises — p. 71
+- 5 Publicly Verifiable, Non-interactive Arguments via Fiat-Shamir — p. 74
+  - 5.1 The Random Oracle Model — p. 74
+  - 5.2 The Fiat-Shamir Transformation — p. 75
+  - 5.3 Security of the Transformation — p. 77
+    - 5.3.1 “Bits of Security”: Statistical vs. Computational — p. 79
+    - 5.3.2 Soundness in the Random Oracle Model for Constant-Round Protocols — p. 80
+    - 5.3.3 Fiat-Shamir Preserves Knowledge-Soundness in the Random Oracle Model — p. 82
+    - 5.3.4 Fiat-Shamir in the Plain Model — p. 82
+  - 5.4 Exercises — p. 83
+- 6 Front Ends: Turning Computer Programs Into Circuits — p. 85
+  - 6.1 Introduction — p. 85
+  - 6.2 Machine Code — p. 86
+  - 6.3 A First Technique For Turning Programs Into Circuits [Sketch] — p. 87
+  - 6.4 Turning Small-Space Programs Into Shallow Circuits — p. 88
+  - 6.5 Turning Computer Programs Into Circuit Satisfiability Instances — p. 89
+    - 6.5.1 The Circuit Satisfiability Problem — p. 89
+    - 6.5.2 Preview: How Do Succinct Arguments for Circuit Satisfiability Operate? — p. 91
+    - 6.5.3 The Transformation From Computer Programs To Arithmetic Circuit Satisfiability — p. 92
+    - 6.5.4 Details of the Transformation — p. 92
+  - 6.6 Alternative Transformations and Optimizations — p. 97
+    - 6.6.1 Ensuring Memory Consistency via Merkle Trees — p. 97
+    - 6.6.2 Ensuring Memory Consistency via Fingerprinting — p. 98
+    - 6.6.3 Efficiently Representing Non-Arithmetic Operations Over Large Prime-Order Fields — p. 102
+    - 6.6.4 CPU-like vs. ASIC-like program-to-circuit transformations — p. 105
+  - 6.7 Exercises — p. 105
+- 7 A First Succinct Argument for Circuit Satisfiability, from Interactive Proofs — p. 107
+  - 7.1 A Naive Approach: An IP for Circuit Satisfiability — p. 108
+  - 7.2 Succinct Arguments for Circuit Satisfiability — p. 108
+  - 7.3 A First Succinct Argument for Circuit Satisfiability — p. 108
+    - 7.3.1 The Approach — p. 109
+    - 7.3.2 Details — p. 110 ‡
+  - 7.4 Knowledge-Soundness — p. 114
+- 8 MIPs and Succinct Arguments — p. 118
+  - 8.1 MIPs: Definitions and Basic Results — p. 118
+    - 8.1.1 What Does a Second Prover Buy? — p. 119 ‡
+  - 8.2 An Efficient MIP For Circuit Satisfiability — p. 121
+    - 8.2.1 Protocol Summary — p. 122 ‡
+  - 8.3 A Succinct Argument for Deep Circuits — p. 127
+  - 8.4 Extension from Circuit-SAT to R1CS-SAT — p. 128
+    - 8.4.1 Relationship Between R1CS-SAT and Arithmetic Circuit-SAT — p. 128
+    - 8.4.2 An MIP for R1CS-SAT — p. 129
+  - 8.5 MIP=NEXP — p. 133
+- 9 PCPs and Succinct Arguments — p. 134
+  - 9.1 PCPs: Definitions and Relationship to MIPs — p. 134
+  - 9.2 Compiling a PCP Into a Succinct Argument — p. 135
+    - 9.2.1 Knowledge-Soundness of Kilian and Micali's Arguments — p. 137
+  - 9.3 A First Polynomial Length PCP, From an MIP — p. 138
+  - 9.4 A PCP of Quasilinear Length for Arithmetic Circuit Satisfiability — p. 140
+    - 9.4.1 Step 1: Reduce to checking that a polynomial vanishes on a designated subspace — p. 140
+    - 9.4.2 Step 2: Reduce to Checking that a Related Polynomial is Low-Degree — p. 142
+    - 9.4.3 Step 3: A PCP for Reed-Solomon Testing — p. 143
+- 10 Interactive Oracle Proofs — p. 146
+  - 10.1 IOPs: Definition and Associated Succinct Arguments — p. 146
+  - 10.2 Polynomial IOPs and Associated Succinct Arguments — p. 147
+  - 10.3 A Polynomial IOP for R1CS-satisfiability — p. 148
+    - 10.3.1 The univariate sum-check protocol — p. 148
+    - 10.3.2 A Polynomial IOP for R1CS-SAT via Univariate Sum-Check — p. 150
+  - 10.4 FRI and Associated Polynomial Commitments — p. 154
+    - 10.4.1 Overview — p. 155
+    - 10.4.2 Polynomial commitments and queries to points outside of L_0 — p. 155 ‡
+    - 10.4.3 Costs of FRI — p. 156
+    - 10.4.4 Details of FRI: Better Reed-Solomon Proximity Proofs via Interaction — p. 157
+    - 10.4.5 From Univariate to Multilinear Polynomials — p. 161
+  - 10.5 Ligero and Brakedown Polynomial Commitments — p. 162
+    - 10.5.1 Identifying Tensor Product Structure in Polynomial Evaluation Queries — p. 163
+    - 10.5.2 Description of the polynomial commitment scheme — p. 163
+    - 10.5.3 Discussion of Costs — p. 166
+  - 10.6 Unifying IPs, MIPs, and IOPs via Polynomial IOPs — p. 167
+- 11 Zero-Knowledge Proofs and Arguments — p. 170
+  - 11.1 What is Zero-Knowledge? — p. 170
+  - 11.2 The Limits of Statistical Zero Knowledge Proofs — p. 173
+  - 11.3 Honest-Verifier SZK Protocol for Graph Non-Isomorphism — p. 174
+  - 11.4 Honest-Verifier SZK Protocol for the Collision Problem — p. 175
+- 12 Σ-Protocols and Commitments from Hardness of Discrete Logarithm — p. 179 ‡
+  - 12.1 Cryptographic Background — p. 179
+    - 12.1.1 A Brief Introduction to Groups — p. 179
+    - 12.1.2 The Discrete Logarithm Problem and Background on Elliptic Curves — p. 180 ‡
+  - 12.2 Schnorr's Σ-Protocol for Knowledge of Discrete Logarithms — p. 181 ‡
+    - 12.2.1 Σ-Protocols — p. 182 ‡
+    - 12.2.2 Schnorr's Σ-Protocol for the Discrete Logarithm Relation — p. 182 ‡
+    - 12.2.3 Fiat-Shamir Applied to Σ-Protocols — p. 185 ‡
+  - 12.3 A Homomorphic Commitment Scheme — p. 188
+    - 12.3.1 Important Properties of Pedersen Commitments — p. 190
+    - 12.3.2 Establishing A Product Relationship Between Committed Values — p. 193
+- 13 Zero-Knowledge via Commit-And-Prove and Masking Polynomials — p. 197
+  - 13.1 Proof Length of Witness Size Plus Multiplicative Complexity — p. 198
+    - 13.1.1 Establishing Knowledge-Soundness — p. 199
+    - 13.1.2 A Final Perspective on Commit-and-Prove — p. 200
+    - 13.1.3 Commit-and-Prove with Other Commitment Schemes — p. 200
+  - 13.2 Avoiding Linear Dependence on Multiplicative Complexity: zk-Arguments from IPs — p. 201
+  - 13.3 Zero-Knowledge via Masking Polynomials — p. 203
+  - 13.4 Discussion and Comparison — p. 206
+- 14 Polynomial Commitments from Hardness of Discrete Logarithm — p. 208
+  - 14.1 A Zero-Knowledge Scheme with Linear Size Commitments — p. 210
+  - 14.2 Constant Size Commitments But Linear Size Evaluation Proofs — p. 212
+  - 14.3 Trading Off Commitment Size and Verification Costs — p. 216
+  - 14.4 Bulletproofs — p. 217
+    - 14.4.1 Warm-up: Proof of Knowledge for Opening of Vector Commitment — p. 217
+    - 14.4.2 The Polynomial Commitment Scheme — p. 227
+- 15 Polynomial Commitments from Pairings — p. 230
+  - 15.1 Cryptographic Background — p. 230
+  - 15.2 KZG: Univariate Polynomial Commitments from Pairings and a Trusted Setup — p. 233
+  - 15.3 Extension of KZG to Multilinear Polynomials — p. 238
+  - 15.4 Dory: Transparent Scheme with Logarithmic Verification Costs — p. 240
+    - 15.4.1 Commitments to Vectors of Group Elements via Inner Pairing Products — p. 240
+    - 15.4.2 Committing to field elements using pairings — p. 242
+    - 15.4.3 Proving Knowledge of Opening with O(log^2 n) Verification Cost — p. 243 ‡
+    - 15.4.4 Extending to a polynomial commitment — p. 248
+    - 15.4.5 Reducing Pre-Processing Time to O(√n) via Matrix Commitments — p. 249 ‡
+    - 15.4.6 Achieving O(log n) communication and verification time — p. 250 ‡
+- 16 Wrap-Up of Polynomial Commitments — p. 255
+  - 16.1 Batch Evaluation of Homomorphically Committed Polynomials — p. 255
+  - 16.2 Commitment Scheme for Sparse Polynomials — p. 255
+  - 16.3 Polynomial Commitment Schemes: Pros and Cons — p. 258
+  - 16.4 Additional Approaches — p. 260
+- 17 Linear PCPs and Succinct Arguments — p. 261
+  - 17.1 Overview: Interactive Arguments From “Long”, Structured PCPs — p. 261
+  - 17.2 Committing to a Linear PCP without Materializing It — p. 263
+    - 17.2.1 Detailed Presentation of Binding Property When = — p. 264
+  - 17.3 A First Linear PCP for Arithmetic Circuit Satisfiability — p. 266
+  - 17.4 GGPR: A Linear PCP Of Size O(|F|S) for Circuit-SAT and R1CS — p. 268
+  - 17.5 Non-Interactivity and Public Verifiability — p. 271
+    - 17.5.1 Informal Overview — p. 271
+    - 17.5.2 A Complication: Linear Interactive Proofs vs. Linear PCPs — p. 273
+    - 17.5.3 Complete Description of the SNARK — p. 273
+    - 17.5.4 Establishing Completeness and Knowledge-Soundness — p. 274
+    - 17.5.5 Handling Public Input — p. 275
+    - 17.5.6 Achieving Zero-Knowledge — p. 276
+- 18 SNARK Composition and Recursion — p. 280
+  - 18.1 Composing Two Different SNARKs — p. 280
+  - 18.2 Deeper Compositions of SNARKs — p. 281
+  - 18.3 Other Applications of SNARK Composition — p. 284
+  - 18.4 SNARKs for Iterative Computation via Recursion — p. 285
+  - 18.5 SNARKs for Iterative Computation via Homomorphic Commitments — p. 287
+    - 18.5.1 Informal Overview of the SNARK — p. 288
+    - 18.5.2 A Folding Scheme for Committed-R1CS-with-a-Slack-Vector — p. 289
+    - 18.5.3 A Large Non-Interactive Argument — p. 291
+    - 18.5.4 The Final SNARK: Nova — p. 293
+- 19 Bird's Eye View of Practical Arguments — p. 296
+  - 19.1 A Taxonomy of SNARKs — p. 296
+  - 19.2 Pros and Cons of the Approaches — p. 299
+  - 19.3 Other Issues Affecting Concrete Efficiency — p. 303
+    - 19.3.1 Field choice — p. 303
+    - 19.3.2 Relative Efficiency of Different Operations — p. 305
+    - 19.3.3 Intermediate Representations (IRs) Other than Arithmetic Circuits and R1CS — p. 306

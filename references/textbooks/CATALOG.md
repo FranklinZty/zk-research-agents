@@ -6,7 +6,8 @@ table of contents (extracted from a locally owned copy with
 `skills/textbook-index/scripts/extract_toc.py`, or recalled from the publisher's public TOC and then
 marked `TOC from public source`).
 
-TOC source legend: **bm** = embedded PDF bookmarks (pages = PDF physical pages) · **txt** = parsed from the
+TOC source legend: **src** = generated from the pinned LaTeX source (labels, no page numbers) · **vf** = verified
+against a pinned PDF (bookmarks + numbered headings, printed page numbers) · **bm** = embedded PDF bookmarks (pages = PDF physical pages) · **txt** = parsed from the
 printed contents pages (pages = printed page numbers; OCR noise possible) · **pub** = chapter-level TOC from a
 public source (verify before citing chapter numbers) · **stub** = bibliographic entry only (scanned / DjVu
 without outline; fill from the publisher page) · **none** = no TOC file (catalogued only).
@@ -36,14 +37,18 @@ them through `skills/bib-verify` before citing, and fill in the missing fields o
 | [merris-combinatorics](toc/merris-combinatorics.md) | R. Merris, *Combinatorics* (2nd ed., Wiley) | bm | counting, inclusion–exclusion, permutations and cycles, generating functions, codes and designs | PT (union / counting bounds) |
 | [west-introduction-to-graph-theory-with-solution-manual](toc/west-introduction-to-graph-theory-with-solution-manual.md) | D. B. West, *Introduction to Graph Theory* (2nd ed.) | bm | paths, cycles, trees, matchings, connectivity | AC (copy-constraint cycles, wiring graphs) |
 
-## C. Cryptography and proof systems (not in the local corpus; TOC from public source)
+## C. Cryptography and proof systems
+
+The two pinned reference books (CY24, Thaler) are fetched by `references/books/fetch.sh`; pinning, licences,
+citation format and the paraphrase-only rule are in [`references/books/README.md`](../books/README.md). The other
+rows are not in the local corpus (TOC from public source).
 
 | slug | book | TOC | topic tags | use |
 |---|---|---|---|---|
-| [thaler-proofs-arguments-and-zero-knowledge](toc/thaler-proofs-arguments-and-zero-knowledge.md) | J. Thaler, *Proofs, Arguments, and Zero-Knowledge* (free) | pub | sum-check, GKR, Fiat–Shamir, front ends, PCP/IOP, polynomial commitments, SNARK recursion | ALL |
+| [chiesa-yogev-building-cryptographic-proofs-from-hash-functions](toc/chiesa-yogev-building-cryptographic-proofs-from-hash-functions.md) | A. Chiesa, E. Yogev, *Building Cryptographic Proofs from Hash Functions* (v1.2, CC BY-SA 4.0; pinned commit `305fa3d`) | src | ROM, FS, Merkle, BCS, concrete security; state restoration, RBR and special soundness, Micali, COS | PT, SY |
+| [thaler-proofs-arguments-and-zero-knowledge](toc/thaler-proofs-arguments-and-zero-knowledge.md) | J. Thaler, *Proofs, Arguments, and Zero-Knowledge* (author's PDF of July 18, 2023, pinned by sha256; published as FnT Privacy and Security 4(2–4), 2022, DOI 10.1561/3300000030) | vf | sum-check, GKR, Fiat–Shamir, front ends, PCP/IOP, FRI, polynomial commitments (IPA, KZG, Dory), linear PCPs, SNARK recursion and folding | ALL |
 | [boneh-shoup-graduate-course-in-applied-cryptography](toc/boneh-shoup-graduate-course-in-applied-cryptography.md) | D. Boneh, V. Shoup, *A Graduate Course in Applied Cryptography* (free draft) | pub | hashing, pairings, Sigma protocols, proving properties in zero-knowledge | PT |
 | [katz-lindell-introduction-to-modern-cryptography](toc/katz-lindell-introduction-to-modern-cryptography.md) | J. Katz, Y. Lindell, *Introduction to Modern Cryptography* (3rd ed.) | pub | definitions, reductions, hash functions, number-theoretic assumptions | PT |
-| — | A. Chiesa, E. Yogev, *Building Cryptographic Proofs from Hash Functions* (free draft) — `needs verification` | none | hash-based SNARGs, IOPs, Merkle commitments, random-oracle soundness | PT, SY |
 
 ## D. Coding theory, Reed–Solomon codes and proximity (public material; no TOC file)
 

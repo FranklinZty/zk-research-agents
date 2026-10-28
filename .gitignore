@@ -19,3 +19,5 @@ lake-packages/
 references/**/*.pdf
 !case-study/**/*.log
 .privacy-denylist
+# pinned reference books are fetched locally, never committed (references/books/README.md)
+references/books/.cache/
