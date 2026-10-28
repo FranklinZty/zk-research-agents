@@ -1,4 +1,7 @@
-# MATH-REFS — where each mathematical fact comes from (owner: `math-librarian`)
+# MATH-REFS — where each mathematical fact comes from (owner: `lit-scout`)
 
-| fact used in paper | book / paper | chapter.section / theorem no. | verified by (sage/lean/hand) |
-|---|---|---|---|
+Cite books in the repository format (`[CY24 §<section>, <label>]`, `[Thaler §<number>, <name>]`; see
+`references/books/README.md`); outside the books' scope, the original paper with section and theorem number.
+
+| id | statement we use (exact, with quantifiers) | source (book citation or paper, section, theorem) | hypotheses in source | hold in our setting? (how checked: sage/lean/hand) | used in |
+|---|---|---|---|---|---|
