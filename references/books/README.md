@@ -98,11 +98,23 @@ CY24, as given in the book's own README:
 }
 ```
 
-`skills/bib-verify` resolves URL-only sources through its URL path only for `@misc`/`@online` entries; as a
-`@book` it falls back to a title search and reports `NOT_FOUND`. For a project `refs.bib`, either keep the
-entry as above and mark it checked by hand (URL answers; Wayback snapshot
-`https://web.archive.org/web/20260908092256/https://github.com/hash-based-snargs-book`), or verify a `@misc`
-copy with `urldate`, which `bib-verify` reported `VERIFIED` on 2026-10-27.
+`skills/bib-verify` first searches DBLP/Crossref for the title; when a URL-only `@book` like this one is not
+found there, it checks it through its URL path (the URL answers, a Wayback snapshot exists, an access date is
+recorded). For a project `refs.bib`, add the access date so the entry can pass that check:
+
+```bibtex
+@book{ChiesaYogev2024,
+  author = {Chiesa, Alessandro and Yogev, Eylon},
+  title = {Building Cryptographic Proofs from Hash Functions},
+  url = {https://github.com/hash-based-snargs-book},
+  urldate = {2026-10-27},
+  year = {2024},
+}
+```
+
+A Wayback snapshot of the URL exists
+(`https://web.archive.org/web/20260908092256/https://github.com/hash-based-snargs-book`); add it as
+`archiveurl=` to avoid the availability lookup.
 
 Thaler, published version (verified with `skills/bib-verify`, Crossref, 2026-10-27):
 

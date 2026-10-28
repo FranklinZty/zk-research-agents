@@ -1,6 +1,6 @@
 ---
 name: bib-verify
-description: Verify every BibTeX entry against IACR ePrint, Crossref/DataCite and DBLP (and @misc URL sources against the live URL + Wayback Machine) and flag fabricated, garbled or placeholder references. Use before any draft leaves the machine, after any agent adds citations, and as the P1 and P8 gate item.
+description: Verify every BibTeX entry against IACR ePrint, Crossref/DataCite and DBLP (and @misc URL sources, or URL-only @book entries such as open books, against the live URL + Wayback Machine) and flag fabricated, garbled or placeholder references. Use before any draft leaves the machine, after any agent adds citations, and as the P1 and P8 gate item.
 ---
 
 # bib-verify
@@ -19,7 +19,11 @@ own reading lists were drafted from memory, the verifier caught three such error
    ```
    Resolution order: ePrint id (from `eprint=`, `url=`, `howpublished=`...) → OAI record; `doi=` → Crossref,
    then DataCite (Zenodo/LIPIcs/arXiv DOIs); `@misc`/`@online` with a URL and no ePrint id/DOI → URL-source
-   check (below); otherwise a title search (DBLP if it answers, else Crossref).
+   check (below); otherwise a title search (DBLP if it answers, else Crossref). A `@book` with a `url`, no
+   ePrint id and no DOI that the title search does **not** find (e.g. a book published from a Git repository,
+   such as the CY24 entry in [references/books/README.md](../../references/books/README.md)) then goes through
+   the same URL-source check; its detail starts with `@book via URL (title search: …)` so the report shows that
+   no publisher record was found. A `@book` that the search does find keeps the record path.
 2. Triage every non-`VERIFIED` row by hand:
    | status | meaning | action |
    |---|---|---|
@@ -44,8 +48,15 @@ own reading lists were drafted from memory, the verifier caught three such error
    }
    ```
    A failing URL source is `NEEDS_VERIFICATION`, not `NOT_FOUND`: blogs are not in DBLP/Crossref, so absence there
-   is not evidence of fabrication — but it still blocks the gate. Authors and title of URL sources are **not**
-   machine-checked; compare them with the archived page by hand.
+   is not evidence of fabrication — but it still blocks the gate. Authors and title of URL sources (and of
+   URL-only books) are **not** machine-checked; compare them with the archived page by hand.
+
+   ```bibtex
+   @book{ToyBook2024,
+     author = {Toy, Ada}, title = {Building Toy Proofs from Toy Hashes}, year = {2024},
+     url = {https://github.example.org/toy-snargs-book}, urldate = {2026-10-27},
+   }
+   ```
 4. Lint flags (placeholder authors, `and others` only, missing year, `% UNVERIFIED` marker, duplicate titles) must
    be cleared too.
 5. For every *changed* entry, grep the paper for its key and re-read the citing sentence: a wrong reference often
@@ -66,4 +77,6 @@ own reading lists were drafted from memory, the verifier caught three such error
 ## Files
 
 - `scripts/verify_bib.py` — dependency-free checker (`--selftest`, `--selftest-online`, `--only k1,k2`, `--offline`,
-  `--url-timeout`). `--selftest` is fully offline (URL and Wayback lookups are injected fakes).
+  `--url-timeout`). `--selftest` is fully offline (URL, Wayback and title-search lookups are injected fakes).
+- `tests/test_verify_bib.py` — pytest, offline: the @book URL fallback (found / not found / unreachable / no
+  snapshot) and the self-test.

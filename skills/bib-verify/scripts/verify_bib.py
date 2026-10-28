@@ -30,6 +30,10 @@ Resolution order per entry
    `howpublished=`, else the archive.org availability API); (c) an access date is
    recorded (`urldate = {YYYY-MM-DD}` or "Accessed YYYY-MM-DD" in `note=`).
 4. otherwise title search: DBLP (if reachable) then Crossref bibliographic query.
+5. a `@book` with a `url` and neither ePrint id nor DOI that the title search does not
+   find (NOT_FOUND; e.g. an open book published from a repository) -> the URL check of
+   step 3. The detail says that the title search failed, so the result reads as "the
+   URL source exists and is archived", not as "a publisher record was found".
 
 Each entry gets a status:
   VERIFIED     title similarity >= 0.90 and >= 1 author surname overlap (and year +-1 if given)
@@ -348,6 +352,12 @@ def is_url_source(e: dict) -> bool:
     return e["type"] in URL_TYPES and bool(entry_url(f)) and not find_eprint_id(f) and not f.get("doi")
 
 
+def is_url_book(e: dict) -> bool:
+    """A @book that can only be resolved through its URL: url given, no ePrint id, no DOI."""
+    f = e["fields"]
+    return e["type"] == "book" and bool(entry_url(f)) and not find_eprint_id(f) and not f.get("doi")
+
+
 def check_url_source(e: dict, state: dict) -> tuple[str, str]:
     """Return (status, detail).  Network calls go through state['probe'] / state['wayback']
     so the selftest can inject fakes; every real call has a timeout."""
@@ -404,7 +414,7 @@ def lint(e: dict) -> list[str]:
         flags.append("TODO/TBD text in entry")
     if e["unverified_marker"]:
         flags.append("marked % UNVERIFIED in source")
-    if is_url_source(e) and not access_date(f):
+    if (is_url_source(e) or is_url_book(e)) and not access_date(f):
         flags.append("URL source without access date (urldate)")
     return flags
 
@@ -469,15 +479,20 @@ def check_entry(e: dict, offline: bool, state: dict) -> dict:
         cands, used = [], []
         if not state.get("dblp_blocked"):
             try:
-                cands += search_dblp(title)
+                cands += state.get("search_dblp", search_dblp)(title)
                 used.append("DBLP")
             except (Blocked, ValueError):
                 state["dblp_blocked"] = True
         first = (surnames_from_bib(f.get("author", "")) or [""])[0]
-        cands += search_crossref(title, first)
+        cands += state.get("search_crossref", search_crossref)(title, first)
         used.append("Crossref")
         best = max(cands, key=lambda r: title_sim(title, r["title"]), default=None)
         res["status"], res["score"], res["detail"] = judge(e, best, "search " + "+".join(used))
+        if res["status"] == "NOT_FOUND" and is_url_book(e):
+            searched = res["detail"]
+            res["status"], res["detail"] = check_url_source(e, state)
+            res["score"] = 1.0 if res["status"] == "VERIFIED" else 0.0
+            res["detail"] = f"@book via URL (title search: {searched}); " + res["detail"]
     except (urllib.error.URLError, TimeoutError, OSError, ValueError) as exc:
         res["status"], res["detail"] = "UNCHECKED", f"service error: {exc}"
     finally:
@@ -550,6 +565,30 @@ SELFTEST_URL_BIB = r"""
 """
 
 
+# Synthetic @book entries for the URL fallback; example.org hosts, invented titles.
+SELFTEST_BOOK_BIB = r"""
+@book{book-url,
+  author = {Toy, Ada}, title = {Toy Proofs from Toy Hashes},
+  url = {https://github.example.org/toy-proofs-book}, urldate = {2026-10-27}, year = {2024},
+}
+@book{book-url-nodate,
+  author = {Toy, Ada}, title = {Toy Proofs, Second Volume},
+  url = {https://books.example.org/toy-2}, year = {2025},
+}
+@book{book-dead,
+  author = {Toy, Ada}, title = {Toy Proofs, Lost Volume},
+  url = {https://dead.example.org/toy-3}, urldate = {2026-10-27}, year = {2025},
+}
+@book{book-doi,
+  author = {Toy, Ada}, title = {Toy Proofs with a DOI}, doi = {10.0000/toy.0001},
+  url = {https://books.example.org/toy-doi}, year = {2024},
+}
+@book{book-nourl,
+  author = {Toy, Ada}, title = {Toy Proofs Without a Link}, publisher = {Toy Press}, year = {2024},
+}
+"""
+
+
 def selftest(online: bool) -> int:
     es = parse_bib(SELFTEST_BIB)
     assert [e["key"] for e in es] == ["cggi-tfhe", "fake"], es
@@ -587,6 +626,36 @@ def selftest(online: bool) -> int:
     assert all(c[2] == 3.0 for c in calls)                                    # timeout passed through
     assert check_entry(us["blog-ok"], True, st)["status"] == "UNCHECKED"      # offline stays closed
     assert "| NEEDS_VERIFICATION |" in render(list(got.values()), {})
+    # @book with only a URL: title search finds nothing -> URL path (fake searches, no network)
+    bs = {e["key"]: e for e in parse_bib(SELFTEST_BOOK_BIB)}
+    assert is_url_book(bs["book-url"]) and not is_url_source(bs["book-url"])
+    assert not is_url_book(bs["book-doi"]) and not is_url_book(bs["book-nourl"])
+    assert "URL source without access date (urldate)" in lint(bs["book-url-nodate"])
+    searches = []
+
+    def fake_search(title, *rest):
+        searches.append(title)
+        return [{"title": "An Unrelated Monograph on Lattices", "authors": ["Nobody Else"], "year": 2020,
+                 "source": "fake"}]
+
+    st = {"delay": 0.0, "url_timeout": 3.0, "probe": fake_probe, "wayback": fake_wayback,
+          "search_dblp": fake_search, "search_crossref": fake_search}
+    rb = check_entry(bs["book-url"], False, st)
+    assert rb["status"] == "VERIFIED" and rb["detail"].startswith("@book via URL (title search: fake:"), rb
+    assert searches, "title search must run before the URL path"
+    rn = check_entry(bs["book-url-nodate"], False, st)
+    assert rn["status"] == "NEEDS_VERIFICATION" and "no access date" in rn["detail"], rn
+    rd = check_entry(bs["book-dead"], False, st)
+    assert rd["status"] == "NEEDS_VERIFICATION" and "unreachable" in rd["detail"], rd
+    rx = check_entry(bs["book-nourl"], False, st)
+    assert rx["status"] == "NOT_FOUND", rx                                    # no URL: no fallback
+
+    def fake_hit(title, *rest):
+        return [{"title": "Toy Proofs from Toy Hashes", "authors": ["Ada Toy"], "year": 2024, "source": "fake"}]
+
+    st_hit = dict(st, search_dblp=fake_hit, search_crossref=fake_hit)
+    rh = check_entry(bs["book-url"], False, st_hit)
+    assert rh["status"] == "VERIFIED" and "@book via URL" not in rh["detail"], rh   # a record wins
     print("selftest (offline part): OK")
     if online:
         st = {"delay": 0.5}
